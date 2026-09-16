@@ -1,0 +1,213 @@
+@prefix dsc:     <https://istituto-italiano-di-studi-germanici.github.io/DiScEPT/onto#> .
+@prefix ex:      <https://example.org/discept/dante-inferno-i/> .
+@prefix cito:    <http://purl.org/spar/cito/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix hico:    <http://purl.org/emmedi/hico/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema:  <https://schema.org/> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# DiScEPT example: Dante, Inferno I.1–3 and Longfellow's translation
+#
+# This compact dataset demonstrates:
+#   1. an explicit translation relation between expressions;
+#   2. verse-level alignments;
+#   3. a local translation-phenomenon assertion with HiCO/PROV provenance.
+#
+# The interpretation attached to line 2 is illustrative and is included to
+# test the model. It is not presented as a definitive philological judgement.
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+# Agents, work and expressions
+# -----------------------------------------------------------------------------
+
+ex:dante
+    a prov:Agent , schema:Person ;
+    schema:name "Dante Alighieri" .
+
+ex:longfellow
+    a prov:Agent , schema:Person ;
+    schema:name "Henry Wadsworth Longfellow" .
+
+ex:example-editor
+    a prov:Agent ;
+    schema:name "DiScEPT example editor" .
+
+ex:commedia
+    a dsc:Work ;
+    dcterms:creator ex:dante ;
+    dcterms:title "Commedia"@it .
+
+ex:inferno-i-italian
+    a dsc:Expression ;
+    dsc:realises ex:commedia ;
+    dcterms:creator ex:dante ;
+    dcterms:language <http://id.loc.gov/vocabulary/iso639-1/it> ;
+    dcterms:title "Inferno, Canto I, verses 1–3"@en ;
+    dcterms:source <https://digitaldante.columbia.edu/dante/divine-comedy/inferno/inferno-1/> .
+
+ex:inferno-i-longfellow
+    a dsc:Translation ;
+    dsc:realises ex:commedia ;
+    dsc:translates ex:inferno-i-italian ;
+    dcterms:creator ex:longfellow ;
+    dcterms:language <http://id.loc.gov/vocabulary/iso639-1/en> ;
+    dcterms:title "Inferno, Canto I, verses 1–3, translated by Longfellow"@en ;
+    dcterms:source <https://www.gutenberg.org/files/1001/1001-h/1001-h.htm> .
+
+ex:longfellow-translation-act
+    a dsc:TranslationAct ;
+    dsc:usesSourceExpression ex:inferno-i-italian ;
+    dsc:createsTranslation ex:inferno-i-longfellow ;
+    dsc:translator ex:longfellow .
+
+
+# -----------------------------------------------------------------------------
+# Documentary segments
+# -----------------------------------------------------------------------------
+
+ex:it-line-1
+    a dsc:TextSegment ;
+    dsc:inExpression ex:inferno-i-italian ;
+    dsc:xmlId "inf1-it-l1"^^xsd:NCName ;
+    dsc:teiElement "l" ;
+    dsc:content "Nel mezzo del cammin di nostra vita"@it .
+
+ex:it-line-2
+    a dsc:TextSegment ;
+    dsc:inExpression ex:inferno-i-italian ;
+    dsc:xmlId "inf1-it-l2"^^xsd:NCName ;
+    dsc:teiElement "l" ;
+    dsc:content "mi ritrovai per una selva oscura,"@it .
+
+ex:it-line-3
+    a dsc:TextSegment ;
+    dsc:inExpression ex:inferno-i-italian ;
+    dsc:xmlId "inf1-it-l3"^^xsd:NCName ;
+    dsc:teiElement "l" ;
+    dsc:content "ché la diritta via era smarrita."@it .
+
+ex:en-line-1
+    a dsc:TextSegment ;
+    dsc:inExpression ex:inferno-i-longfellow ;
+    dsc:xmlId "inf1-en-l1"^^xsd:NCName ;
+    dsc:teiElement "l" ;
+    dsc:content "Midway upon the journey of our life"@en .
+
+ex:en-line-2
+    a dsc:TextSegment ;
+    dsc:inExpression ex:inferno-i-longfellow ;
+    dsc:xmlId "inf1-en-l2"^^xsd:NCName ;
+    dsc:teiElement "l" ;
+    dsc:content "I found myself within a forest dark,"@en .
+
+ex:en-line-3
+    a dsc:TextSegment ;
+    dsc:inExpression ex:inferno-i-longfellow ;
+    dsc:xmlId "inf1-en-l3"^^xsd:NCName ;
+    dsc:teiElement "l" ;
+    dsc:content "For the straightforward pathway had been lost."@en .
+
+
+# -----------------------------------------------------------------------------
+# Analytical units
+# -----------------------------------------------------------------------------
+
+ex:it-unit-1
+    a dsc:TextualUnit ;
+    dsc:unitInExpression ex:inferno-i-italian ;
+    dsc:comprisesSegment ex:it-line-1 .
+
+ex:it-unit-2
+    a dsc:TextualUnit ;
+    dsc:unitInExpression ex:inferno-i-italian ;
+    dsc:comprisesSegment ex:it-line-2 .
+
+ex:it-unit-3
+    a dsc:TextualUnit ;
+    dsc:unitInExpression ex:inferno-i-italian ;
+    dsc:comprisesSegment ex:it-line-3 .
+
+ex:en-unit-1
+    a dsc:TextualUnit ;
+    dsc:unitInExpression ex:inferno-i-longfellow ;
+    dsc:comprisesSegment ex:en-line-1 .
+
+ex:en-unit-2
+    a dsc:TextualUnit ;
+    dsc:unitInExpression ex:inferno-i-longfellow ;
+    dsc:comprisesSegment ex:en-line-2 .
+
+ex:en-unit-3
+    a dsc:TextualUnit ;
+    dsc:unitInExpression ex:inferno-i-longfellow ;
+    dsc:comprisesSegment ex:en-line-3 .
+
+
+# -----------------------------------------------------------------------------
+# Verse-level alignments
+# -----------------------------------------------------------------------------
+
+ex:manual-alignment-run
+    a dsc:AlignmentActivity ;
+    dsc:alignmentMethod dsc:manualAlignment ;
+    dsc:generatesAlignment ex:alignment-1 , ex:alignment-2 , ex:alignment-3 ;
+    prov:wasAssociatedWith ex:example-editor .
+
+ex:alignment-1
+    a dsc:Alignment ;
+    dsc:hasAlignmentTarget ex:alignment-target-1 ;
+    dsc:alignmentLevel dsc:verseLevel ;
+    dsc:correspondenceType dsc:equivalence ;
+    prov:wasGeneratedBy ex:manual-alignment-run .
+
+ex:alignment-target-1
+    a dsc:AlignmentTarget ;
+    dsc:hasAlignedUnit ex:it-unit-1 , ex:en-unit-1 .
+
+ex:alignment-2
+    a dsc:Alignment ;
+    dsc:hasAlignmentTarget ex:alignment-target-2 ;
+    dsc:alignmentLevel dsc:verseLevel ;
+    dsc:correspondenceType dsc:equivalence ;
+    prov:wasGeneratedBy ex:manual-alignment-run .
+
+ex:alignment-target-2
+    a dsc:AlignmentTarget ;
+    dsc:hasAlignedUnit ex:it-unit-2 , ex:en-unit-2 .
+
+ex:alignment-3
+    a dsc:Alignment ;
+    dsc:hasAlignmentTarget ex:alignment-target-3 ;
+    dsc:alignmentLevel dsc:verseLevel ;
+    dsc:correspondenceType dsc:equivalence ;
+    prov:wasGeneratedBy ex:manual-alignment-run .
+
+ex:alignment-target-3
+    a dsc:AlignmentTarget ;
+    dsc:hasAlignedUnit ex:it-unit-3 , ex:en-unit-3 .
+
+
+# -----------------------------------------------------------------------------
+# Illustrative interpretation of a local translation phenomenon
+# -----------------------------------------------------------------------------
+
+ex:assertion-line-2-transposition
+    a dsc:InterpretiveAssertion ;
+    dsc:interprets ex:alignment-2 ;
+    dsc:translationPhenomenon dsc:transposition ;
+    dsc:certainty dsc:probable ;
+    prov:wasGeneratedBy ex:interpretation-act-line-2 ;
+    rdfs:comment "Illustrative attribution concerning the rendering of the Italian reflexive construction 'mi ritrovai' as 'I found myself'; it is included to demonstrate the model and remains open to scholarly revision."@en .
+
+ex:interpretation-act-line-2
+    a hico:InterpretationAct ;
+    hico:hasInterpretationType dsc:translationPhenomenonAttribution ;
+    hico:hasInterpretationCriterion dsc:syntacticComparison ;
+    cito:citesAsEvidence ex:it-line-2 , ex:en-line-2 ;
+    prov:wasAssociatedWith ex:example-editor .
