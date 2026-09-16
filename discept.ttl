@@ -1,0 +1,986 @@
+@prefix dsc:     <https://istituto-italiano-di-studi-germanici.github.io/DiScEPT/onto#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix oa:      <http://www.w3.org/ns/oa#> .
+@prefix crm:     <http://www.cidoc-crm.org/cidoc-crm/> .
+@prefix lrmoo:   <http://iflastandards.info/ns/lrm/lrmoo/> .
+@prefix hico:    <http://purl.org/emmedi/hico/> .
+@prefix cito:    <http://purl.org/spar/cito/> .
+@prefix schema:  <https://schema.org/> .
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix vann:    <http://purl.org/vocab/vann/> .
+@prefix vs:      <http://www.w3.org/2003/06/sw-vocab-status/ns#> .
+
+# =============================================================================
+# DiScEPT Ontology 0.3.0 — rewritten draft
+#
+# This ontology defines domain semantics only. Dataset-conformance rules such
+# as required properties, cardinalities, value ranges and PID patterns belong
+# in a separate SHACL shapes graph. The two files are complementary technical
+# artefacts, not competing ontologies.
+#
+# TEI remains authoritative for textual content and documentary structure.
+# RDF represents entities, translation relations, alignments, interpretations
+# and provenance. The link between both representations is explicit through
+# persistent IRIs, TEI document references and xml:id values.
+#
+# External ontologies are referenced by IRI and are not imported. FaBiO is not
+# part of the core: any FaBiO/LRMoo mappings belong in an optional mapping
+# module and must be justified term by term.
+# =============================================================================
+
+<https://istituto-italiano-di-studi-germanici.github.io/DiScEPT/onto>
+    a owl:Ontology ;
+    dcterms:title "DiScEPT Ontology"@en ;
+    dcterms:description
+        "An ontology for multilingual digital scholarly editions, explicit translation relations, n-ary alignments, scholarly interpretations and provenance."@en ;
+    dcterms:publisher <https://www.studigermanici.it/> ;
+    dcterms:license <https://creativecommons.org/licenses/by/4.0/> ;
+    dcterms:created "2026-09-15"^^xsd:date ;
+    dcterms:modified "2026-09-16"^^xsd:date ;
+    dcterms:source <https://github.com/ISTITUTO-ITALIANO-DI-STUDI-GERMANICI/DiScEPT> ;
+    dcterms:conformsTo
+        <https://cidoc-crm.org/lrmoo/ModelVersion/version-1.1.1> ,
+        <https://www.w3.org/TR/annotation-model/> ,
+        <https://www.w3.org/TR/prov-o/> ;
+    owl:versionIRI <https://istituto-italiano-di-studi-germanici.github.io/DiScEPT/onto/0.3.1> ;
+    owl:versionInfo "0.3.1 — draft with initial governed SKOS vocabularies; no coined term is stable."@en ;
+    vann:preferredNamespacePrefix "dsc" ;
+    vann:preferredNamespaceUri "https://istituto-italiano-di-studi-germanici.github.io/DiScEPT/onto#" .
+
+
+# =============================================================================
+# Annotation properties
+# =============================================================================
+
+dsc:competencyQuestion
+    a owl:AnnotationProperty ;
+    rdfs:label "competency question"@en ;
+    skos:definition "A research question that motivates a term in the model."@en .
+
+dsc:teiEquivalent
+    a owl:AnnotationProperty ;
+    rdfs:label "TEI equivalent"@en ;
+    skos:definition "The TEI construct to which a term corresponds, when a direct correspondence exists."@en .
+
+dsc:implementationNote
+    a owl:AnnotationProperty ;
+    rdfs:label "implementation note"@en .
+
+
+# =============================================================================
+# 1 Bibliographic and translation layer
+# =============================================================================
+
+dsc:Edition
+    a owl:Class ;
+    rdfs:subClassOf dcat:Dataset , prov:Entity ;
+    rdfs:label "edition"@en ;
+    skos:definition "The digital scholarly edition as an editorial and publishable dataset containing expressions, alignments, interpretations and metadata."@en ;
+    dsc:teiEquivalent "TEI corpus or edition-level TEI document and teiHeader" ;
+    dsc:competencyQuestion "CQ1, CQ20" .
+
+dsc:Work
+    a owl:Class ;
+    rdfs:subClassOf lrmoo:F1_Work ;
+    rdfs:label "work"@en ;
+    skos:definition "The abstract work realised by one or more expressions."@en ;
+    dsc:competencyQuestion "CQ1" .
+
+dsc:Expression
+    a owl:Class ;
+    rdfs:subClassOf lrmoo:F2_Expression , crm:E33_Linguistic_Object ;
+    rdfs:label "expression"@en ;
+    skos:definition "A linguistic realisation of a work in a language and state that can be identified and compared."@en ;
+    skos:scopeNote "Source and target are contextual roles in a translation relation, not permanent qualities of an expression."@en ;
+    dsc:competencyQuestion "CQ1, CQ2, CQ3" .
+
+dsc:Translation
+    a owl:Class ;
+    rdfs:subClassOf dsc:Expression ;
+    rdfs:label "translation"@en ;
+    skos:definition "An expression explicitly stated to be derived from another expression through translation."@en ;
+    skos:scopeNote "Being a translation is asserted through dsc:translates; it is not reconstructed only by inference from language or shared work membership."@en ;
+    dsc:competencyQuestion "CQ2, CQ3, CQ4" .
+
+dsc:TranslationAct
+    a owl:Class ;
+    rdfs:subClassOf lrmoo:F28_Expression_Creation , prov:Activity ;
+    rdfs:label "translation act"@en ;
+    skos:definition "The activity that uses a source expression and produces a translation expression."@en ;
+    skos:scopeNote "The act carries responsibility, date, place and information about the source expression or manifestation actually used."@en ;
+    dsc:competencyQuestion "CQ3, CQ4" .
+
+dsc:TEIDocument
+    a owl:Class ;
+    rdfs:subClassOf prov:Entity , schema:DigitalDocument ;
+    rdfs:label "TEI document"@en ;
+    skos:definition "A TEI/XML representation that is authoritative for textual content and documentary structure."@en ;
+    dsc:competencyQuestion "CQ17, CQ20" .
+
+
+# =============================================================================
+# 2 Textual and anchoring layer
+# =============================================================================
+
+dsc:TextSegment
+    a owl:Class ;
+    rdfs:subClassOf crm:E33_Linguistic_Object , prov:Entity ;
+    rdfs:label "text segment"@en ;
+    skos:definition "A documentary segment identified in a TEI transcription, normally by xml:id."@en ;
+    skos:scopeNote "A segment reflects TEI segmentation. It is distinct from the analytical unit used in an alignment."@en ;
+    dsc:teiEquivalent "a TEI element bearing xml:id" ;
+    dsc:competencyQuestion "CQ6, CQ7, CQ17" .
+
+dsc:TextualUnit
+    a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "textual unit"@en ;
+    skos:definition "An analytical unit used as one side of an alignment or as an object of interpretation."@en ;
+    skos:scopeNote "A unit may comprise one or more TEI segments and may be discontinuous. A finer selection can be anchored with an oa:SpecificResource and selector."@en ;
+    dsc:teiEquivalent "join, span or stand-off grouping" ;
+    dsc:competencyQuestion "CQ6, CQ7, CQ8" .
+
+dsc:AlignmentTarget
+    a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "alignment target"@en ;
+    skos:definition "The collective target whose textual units, considered together, constitute one n-ary alignment."@en ;
+    skos:scopeNote "This DiScEPT class provides the collective semantics required by an alignment. It does not subclass oa:Composite, which was removed from the normative Web Annotation vocabulary."@en ;
+    dsc:implementationNote "A JSON-LD application profile may map this construct to a collection pattern, provided that the collective semantics are preserved."@en ;
+    dsc:competencyQuestion "CQ7, CQ8" .
+
+
+# =============================================================================
+# 3 Alignment and validation layer
+# =============================================================================
+
+dsc:Alignment
+    a owl:Class ;
+    rdfs:subClassOf oa:Annotation , prov:Entity ;
+    rdfs:label "alignment"@en ;
+    skos:definition "An addressable observation that two or more textual units participate in one correspondence."@en ;
+    skos:scopeNote "An alignment is n-ary, symmetric at the level of correspondence and non-transitive. Translation direction remains on the expression-level dsc:translates relation."@en ;
+    dsc:teiEquivalent "link inside linkGrp[@type='translation']" ;
+    dsc:competencyQuestion "CQ7, CQ8, CQ9, CQ10" .
+
+dsc:AlignmentActivity
+    a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "alignment activity"@en ;
+    skos:definition "A manual or computational run that produces one or more alignment entities."@en ;
+    dsc:competencyQuestion "CQ9, CQ10, CQ11" .
+
+dsc:AlignmentGeneration
+    a owl:Class ;
+    rdfs:subClassOf prov:Generation ;
+    rdfs:label "alignment generation"@en ;
+    skos:definition "The qualified generation that links an alignment to the run that produced it and carries run-specific output values such as confidence."@en ;
+    dsc:competencyQuestion "CQ10, CQ11" .
+
+dsc:AlignmentModel
+    a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "alignment model"@en ;
+    skos:definition "A versioned computational model used by an alignment activity, distinct from the software agent that executes it."@en ;
+    dsc:competencyQuestion "CQ10" .
+
+dsc:ValidationActivity
+    a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "validation activity"@en ;
+    skos:definition "An activity in which an agent evaluates an alignment or interpretation."@en ;
+    dsc:competencyQuestion "CQ12" .
+
+dsc:ValidationResult
+    a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "validation result"@en ;
+    skos:definition "A versioned outcome produced by a validation activity."@en ;
+    skos:scopeNote "The validation history is preserved. A current status may be materialised by an application, but it does not replace individual results."@en ;
+    dsc:competencyQuestion "CQ12" .
+
+
+# =============================================================================
+# 4 Interpretive and translational-profile layer
+# =============================================================================
+
+dsc:InterpretiveAssertion
+    a owl:Class ;
+    rdfs:subClassOf oa:Annotation , prov:Entity ;
+    owl:disjointWith dsc:Alignment ;
+    rdfs:label "interpretive assertion"@en ;
+    skos:definition "A scholarly claim about an alignment, textual unit, expression or translation."@en ;
+    skos:scopeNote "The claim is distinct from the hico:InterpretationAct that generated it. Competing claims can coexist and retain separate provenance."@en ;
+    dsc:competencyQuestion "CQ13, CQ14, CQ15, CQ16" .
+
+
+# =============================================================================
+# 5 Material and IIIF layer
+# =============================================================================
+
+dsc:DigitalSurrogate
+    a owl:Class ;
+    rdfs:subClassOf crm:E73_Information_Object , prov:Entity , schema:MediaObject ;
+    rdfs:label "digital surrogate"@en ;
+    skos:definition "A digital reproduction of a material witness, such as an image or IIIF resource."@en ;
+    dsc:teiEquivalent "facsimile/graphic" ;
+    dsc:competencyQuestion "CQ18" .
+
+dsc:ImageRegion
+    a owl:Class ;
+    rdfs:subClassOf oa:SpecificResource , prov:Entity ;
+    rdfs:label "image region"@en ;
+    skos:definition "A selected region of a digital surrogate, normally expressed through a Web Annotation selector or IIIF region."@en ;
+    dsc:competencyQuestion "CQ18" .
+
+
+# =============================================================================
+# 6 Controlled-vocabulary schemes
+#
+# Scheme membership and allowed values are validation concerns and therefore
+# belong in SHACL. The vocabularies themselves may be maintained in a separate
+# file without changing the ontology.
+# =============================================================================
+
+dsc:correspondenceTypes
+    a skos:ConceptScheme ;
+    skos:prefLabel "Correspondence types"@en ;
+    skos:prefLabel "Tipi di corrispondenza"@it ;
+    skos:scopeNote "Descriptive relations between aligned textual units. These values do not replace provenance-bearing interpretations of translation phenomena."@en .
+
+dsc:alignmentLevels
+    a skos:ConceptScheme ;
+    skos:prefLabel "Alignment levels"@en ;
+    skos:prefLabel "Livelli di allineamento"@it .
+
+dsc:alignmentMethods
+    a skos:ConceptScheme ;
+    skos:prefLabel "Alignment methods"@en ;
+    skos:prefLabel "Metodi di allineamento"@it .
+
+dsc:translationPhenomena
+    a skos:ConceptScheme ;
+    skos:prefLabel "Translation phenomena"@en ;
+    skos:prefLabel "Fenomeni traduttivi"@it ;
+    skos:scopeNote "Concepts for local observations, such as explicitation, omission, condensation or reordering."@en .
+
+dsc:translationTraits
+    a skos:ConceptScheme ;
+    skos:prefLabel "Translation traits"@en ;
+    skos:prefLabel "Tratti traduttivi"@it ;
+    skos:scopeNote "Concepts for recurrent or profile-level features of a translation. A trait must be asserted with provenance and may be derived from multiple local observations."@en .
+
+dsc:certaintyLevels
+    a skos:ConceptScheme ;
+    skos:prefLabel "Certainty levels"@en ;
+    skos:prefLabel "Livelli di certezza"@it .
+
+dsc:validationOutcomes
+    a skos:ConceptScheme ;
+    skos:prefLabel "Validation outcomes"@en ;
+    skos:prefLabel "Esiti della validazione"@it .
+
+dsc:interpretationTypes
+    a skos:ConceptScheme ;
+    skos:prefLabel "Interpretation types"@en ;
+    skos:prefLabel "Tipi di interpretazione"@it .
+
+dsc:interpretationCriteria
+    a skos:ConceptScheme ;
+    skos:prefLabel "Interpretation criteria"@en ;
+    skos:prefLabel "Criteri interpretativi"@it .
+
+dsc:translationPhenomenonAttribution
+    a skos:Concept , hico:InterpretationType ;
+    skos:inScheme dsc:interpretationTypes ;
+    skos:prefLabel "translation-phenomenon attribution"@en .
+
+dsc:translationTraitAttribution
+    a skos:Concept , hico:InterpretationType ;
+    skos:inScheme dsc:interpretationTypes ;
+    skos:prefLabel "translation-trait attribution"@en .
+
+dsc:semanticAnalysis
+    a skos:Concept , hico:InterpretationCriterion ;
+    skos:inScheme dsc:interpretationCriteria ;
+    skos:prefLabel "semantic analysis"@en .
+
+dsc:quantitativeAggregation
+    a skos:Concept , hico:InterpretationCriterion ;
+    skos:inScheme dsc:interpretationCriteria ;
+    skos:prefLabel "quantitative aggregation"@en .
+
+
+# -----------------------------------------------------------------------------
+# 6.1 Correspondence types
+# -----------------------------------------------------------------------------
+
+dsc:equivalence
+    a skos:Concept ;
+    skos:inScheme dsc:correspondenceTypes ;
+    skos:topConceptOf dsc:correspondenceTypes ;
+    skos:prefLabel "equivalence"@en ;
+    skos:prefLabel "equivalenza"@it ;
+    skos:definition "A correspondence in which the aligned units convey substantially comparable content and function in their local contexts."@en .
+
+dsc:partialCorrespondence
+    a skos:Concept ;
+    skos:inScheme dsc:correspondenceTypes ;
+    skos:topConceptOf dsc:correspondenceTypes ;
+    skos:prefLabel "partial correspondence"@en ;
+    skos:prefLabel "corrispondenza parziale"@it ;
+    skos:definition "A correspondence in which only part of the content or function of one aligned unit is represented by the other unit or units."@en .
+
+dsc:paraphrase
+    a skos:Concept ;
+    skos:inScheme dsc:correspondenceTypes ;
+    skos:topConceptOf dsc:correspondenceTypes ;
+    skos:prefLabel "paraphrase"@en ;
+    skos:prefLabel "parafrasi"@it ;
+    skos:definition "A correspondence based on reformulation rather than close lexical or syntactic similarity."@en .
+
+
+# -----------------------------------------------------------------------------
+# 6.2 Alignment levels
+# -----------------------------------------------------------------------------
+
+dsc:tokenLevel
+    a skos:Concept ;
+    skos:inScheme dsc:alignmentLevels ;
+    skos:topConceptOf dsc:alignmentLevels ;
+    skos:prefLabel "token level"@en ;
+    skos:prefLabel "livello di token"@it .
+
+dsc:phraseLevel
+    a skos:Concept ;
+    skos:inScheme dsc:alignmentLevels ;
+    skos:topConceptOf dsc:alignmentLevels ;
+    skos:prefLabel "phrase level"@en ;
+    skos:prefLabel "livello di sintagma"@it .
+
+dsc:sentenceLevel
+    a skos:Concept ;
+    skos:inScheme dsc:alignmentLevels ;
+    skos:topConceptOf dsc:alignmentLevels ;
+    skos:prefLabel "sentence level"@en ;
+    skos:prefLabel "livello di frase"@it .
+
+dsc:verseLevel
+    a skos:Concept ;
+    skos:inScheme dsc:alignmentLevels ;
+    skos:topConceptOf dsc:alignmentLevels ;
+    skos:prefLabel "verse level"@en ;
+    skos:prefLabel "livello di verso"@it .
+
+dsc:paragraphLevel
+    a skos:Concept ;
+    skos:inScheme dsc:alignmentLevels ;
+    skos:topConceptOf dsc:alignmentLevels ;
+    skos:prefLabel "paragraph level"@en ;
+    skos:prefLabel "livello di paragrafo"@it .
+
+dsc:structuralLevel
+    a skos:Concept ;
+    skos:inScheme dsc:alignmentLevels ;
+    skos:topConceptOf dsc:alignmentLevels ;
+    skos:prefLabel "structural level"@en ;
+    skos:prefLabel "livello strutturale"@it .
+
+dsc:semanticLevel
+    a skos:Concept ;
+    skos:inScheme dsc:alignmentLevels ;
+    skos:topConceptOf dsc:alignmentLevels ;
+    skos:prefLabel "semantic level"@en ;
+    skos:prefLabel "livello semantico"@it .
+
+
+# -----------------------------------------------------------------------------
+# 6.3 Alignment methods
+# -----------------------------------------------------------------------------
+
+dsc:manualAlignment
+    a skos:Concept ;
+    skos:inScheme dsc:alignmentMethods ;
+    skos:topConceptOf dsc:alignmentMethods ;
+    skos:prefLabel "manual alignment"@en ;
+    skos:prefLabel "allineamento manuale"@it .
+
+dsc:automaticAlignment
+    a skos:Concept ;
+    skos:inScheme dsc:alignmentMethods ;
+    skos:topConceptOf dsc:alignmentMethods ;
+    skos:prefLabel "automatic alignment"@en ;
+    skos:prefLabel "allineamento automatico"@it .
+
+dsc:hybridAlignment
+    a skos:Concept ;
+    skos:inScheme dsc:alignmentMethods ;
+    skos:topConceptOf dsc:alignmentMethods ;
+    skos:prefLabel "hybrid alignment"@en ;
+    skos:prefLabel "allineamento ibrido"@it ;
+    skos:definition "An alignment produced through a combination of computational processing and human editorial intervention."@en .
+
+
+# -----------------------------------------------------------------------------
+# 6.4 Local translation phenomena
+#
+# These concepts describe possible local phenomena. Their use in a dataset is
+# an interpretive assertion with provenance; membership in this scheme does not
+# entail that a phenomenon is present in any particular translation.
+# -----------------------------------------------------------------------------
+
+dsc:explicitation
+    a skos:Concept ;
+    skos:inScheme dsc:translationPhenomena ;
+    skos:topConceptOf dsc:translationPhenomena ;
+    skos:prefLabel "explicitation"@en ;
+    skos:prefLabel "esplicitazione"@it ;
+    skos:definition "The expression in the translation of information or relations that remain implicit in the source passage."@en .
+
+dsc:implicitation
+    a skos:Concept ;
+    skos:inScheme dsc:translationPhenomena ;
+    skos:topConceptOf dsc:translationPhenomena ;
+    skos:prefLabel "implicitation"@en ;
+    skos:prefLabel "implicitazione"@it ;
+    skos:definition "The rendering as implicit in the translation of information or relations that are expressed more explicitly in the source passage."@en .
+
+dsc:omission
+    a skos:Concept ;
+    skos:inScheme dsc:translationPhenomena ;
+    skos:topConceptOf dsc:translationPhenomena ;
+    skos:prefLabel "omission"@en ;
+    skos:prefLabel "omissione"@it ;
+    skos:definition "The absence from the translation of content represented in the source passage."@en ;
+    skos:scopeNote "An omission is asserted about attested textual resources; the data model does not create a fictitious empty text segment."@en .
+
+dsc:addition
+    a skos:Concept ;
+    skos:inScheme dsc:translationPhenomena ;
+    skos:topConceptOf dsc:translationPhenomena ;
+    skos:prefLabel "addition"@en ;
+    skos:prefLabel "aggiunta"@it ;
+    skos:definition "The presence in the translation of content for which no direct counterpart is represented in the relevant source passage."@en .
+
+dsc:condensation
+    a skos:Concept ;
+    skos:inScheme dsc:translationPhenomena ;
+    skos:topConceptOf dsc:translationPhenomena ;
+    skos:prefLabel "condensation"@en ;
+    skos:prefLabel "condensazione"@it ;
+    skos:definition "A more compressed rendering of source content in the translation."@en .
+
+dsc:expansion
+    a skos:Concept ;
+    skos:inScheme dsc:translationPhenomena ;
+    skos:topConceptOf dsc:translationPhenomena ;
+    skos:prefLabel "expansion"@en ;
+    skos:prefLabel "espansione"@it ;
+    skos:definition "A more extended rendering of source content in the translation."@en .
+
+dsc:modulation
+    a skos:Concept ;
+    skos:inScheme dsc:translationPhenomena ;
+    skos:topConceptOf dsc:translationPhenomena ;
+    skos:prefLabel "modulation"@en ;
+    skos:prefLabel "modulazione"@it ;
+    skos:definition "A change in semantic perspective or conceptual viewpoint between a source passage and its translation."@en .
+
+dsc:transposition
+    a skos:Concept ;
+    skos:inScheme dsc:translationPhenomena ;
+    skos:topConceptOf dsc:translationPhenomena ;
+    skos:prefLabel "transposition"@en ;
+    skos:prefLabel "trasposizione"@it ;
+    skos:definition "A change in grammatical category or syntactic construction between a source passage and its translation."@en .
+
+dsc:reordering
+    a skos:Concept ;
+    skos:inScheme dsc:translationPhenomena ;
+    skos:topConceptOf dsc:translationPhenomena ;
+    skos:prefLabel "reordering"@en ;
+    skos:prefLabel "riordinamento"@it ;
+    skos:definition "A change in the relative order of corresponding textual material."@en .
+
+
+# -----------------------------------------------------------------------------
+# 6.5 Certainty and validation
+# -----------------------------------------------------------------------------
+
+dsc:certain
+    a skos:Concept ;
+    skos:inScheme dsc:certaintyLevels ;
+    skos:topConceptOf dsc:certaintyLevels ;
+    skos:prefLabel "certain"@en ;
+    skos:prefLabel "certo"@it .
+
+dsc:probable
+    a skos:Concept ;
+    skos:inScheme dsc:certaintyLevels ;
+    skos:topConceptOf dsc:certaintyLevels ;
+    skos:prefLabel "probable"@en ;
+    skos:prefLabel "probabile"@it .
+
+dsc:uncertain
+    a skos:Concept ;
+    skos:inScheme dsc:certaintyLevels ;
+    skos:topConceptOf dsc:certaintyLevels ;
+    skos:prefLabel "uncertain"@en ;
+    skos:prefLabel "incerto"@it .
+
+dsc:accepted
+    a skos:Concept ;
+    skos:inScheme dsc:validationOutcomes ;
+    skos:topConceptOf dsc:validationOutcomes ;
+    skos:prefLabel "accepted"@en ;
+    skos:prefLabel "accettato"@it .
+
+dsc:rejected
+    a skos:Concept ;
+    skos:inScheme dsc:validationOutcomes ;
+    skos:topConceptOf dsc:validationOutcomes ;
+    skos:prefLabel "rejected"@en ;
+    skos:prefLabel "rifiutato"@it .
+
+dsc:revised
+    a skos:Concept ;
+    skos:inScheme dsc:validationOutcomes ;
+    skos:topConceptOf dsc:validationOutcomes ;
+    skos:prefLabel "revised"@en ;
+    skos:prefLabel "revisionato"@it .
+
+dsc:pending
+    a skos:Concept ;
+    skos:inScheme dsc:validationOutcomes ;
+    skos:topConceptOf dsc:validationOutcomes ;
+    skos:prefLabel "pending"@en ;
+    skos:prefLabel "in attesa"@it .
+
+
+# -----------------------------------------------------------------------------
+# 6.6 Additional interpretation criteria
+# -----------------------------------------------------------------------------
+
+dsc:lexicalComparison
+    a skos:Concept , hico:InterpretationCriterion ;
+    skos:inScheme dsc:interpretationCriteria ;
+    skos:prefLabel "lexical comparison"@en ;
+    skos:prefLabel "confronto lessicale"@it .
+
+dsc:syntacticComparison
+    a skos:Concept , hico:InterpretationCriterion ;
+    skos:inScheme dsc:interpretationCriteria ;
+    skos:prefLabel "syntactic comparison"@en ;
+    skos:prefLabel "confronto sintattico"@it .
+
+
+# =============================================================================
+# 7 Bibliographic and translation properties
+# =============================================================================
+
+dsc:hasExpression
+    a owl:ObjectProperty ;
+    rdfs:domain dsc:Edition ;
+    rdfs:range dsc:Expression ;
+    rdfs:label "has expression"@en ;
+    skos:definition "Relates an edition to an expression included in it."@en ;
+    dsc:competencyQuestion "CQ1" .
+
+dsc:isRealisedIn
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf lrmoo:R3_is_realised_in ;
+    owl:inverseOf dsc:realises ;
+    rdfs:domain dsc:Work ;
+    rdfs:range dsc:Expression ;
+    rdfs:label "is realised in"@en ;
+    dsc:competencyQuestion "CQ1" .
+
+dsc:realises
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf lrmoo:R3i_realises ;
+    rdfs:domain dsc:Expression ;
+    rdfs:range dsc:Work ;
+    rdfs:label "realises"@en ;
+    dsc:competencyQuestion "CQ1" .
+
+dsc:baseExpression
+    a owl:ObjectProperty ;
+    rdfs:domain dsc:Edition ;
+    rdfs:range dsc:Expression ;
+    rdfs:label "base expression"@en ;
+    skos:definition "An expression chosen by the edition as a reference for comparison."@en ;
+    skos:scopeNote "This is an editorial role. An edition may define no base expression or, where its policy permits, more than one."@en ;
+    dsc:competencyQuestion "CQ5" .
+
+dsc:hasTEIDocument
+    a owl:ObjectProperty ;
+    rdfs:domain dsc:Expression ;
+    rdfs:range dsc:TEIDocument ;
+    rdfs:label "has TEI document"@en ;
+    skos:definition "Links an expression to its authoritative TEI representation."@en ;
+    dsc:competencyQuestion "CQ17" .
+
+dsc:translates
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf lrmoo:R76_is_derivative_of , crm:P73i_is_translation_of ;
+    owl:inverseOf dsc:hasTranslation ;
+    rdfs:domain dsc:Translation ;
+    rdfs:range dsc:Expression ;
+    rdfs:label "translates"@en ;
+    skos:definition "Explicitly relates a translation expression to the expression from which it was translated."@en ;
+    skos:scopeNote "The property is not transitive. Relay translation is represented as an explicit chain of direct translation relations."@en ;
+    dsc:competencyQuestion "CQ2, CQ4" .
+
+dsc:hasTranslation
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf lrmoo:R76i_has_derivative , crm:P73_has_translation ;
+    rdfs:domain dsc:Expression ;
+    rdfs:range dsc:Translation ;
+    rdfs:label "has translation"@en ;
+    dsc:competencyQuestion "CQ2" .
+
+dsc:createsTranslation
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf lrmoo:R17_created , prov:generated ;
+    rdfs:domain dsc:TranslationAct ;
+    rdfs:range dsc:Translation ;
+    rdfs:label "creates translation"@en ;
+    dsc:competencyQuestion "CQ3" .
+
+dsc:usesSourceExpression
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:used , crm:P16_used_specific_object ;
+    rdfs:domain dsc:TranslationAct ;
+    rdfs:range dsc:Expression ;
+    rdfs:label "uses source expression"@en ;
+    skos:definition "Identifies the source expression used in a translation act."@en ;
+    dsc:competencyQuestion "CQ3, CQ4" .
+
+dsc:usesSourceManifestation
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:used ;
+    rdfs:domain dsc:TranslationAct ;
+    rdfs:range lrmoo:F3_Manifestation ;
+    rdfs:label "uses source manifestation"@en ;
+    skos:definition "Identifies the publication or other manifestation actually used by the translator, when known."@en ;
+    dsc:competencyQuestion "CQ4" .
+
+dsc:translator
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:wasAssociatedWith ;
+    rdfs:domain dsc:TranslationAct ;
+    rdfs:range prov:Agent ;
+    rdfs:label "translator"@en ;
+    dsc:competencyQuestion "CQ3" .
+
+
+# =============================================================================
+# 8 Textual and anchoring properties
+# =============================================================================
+
+dsc:inExpression
+    a owl:ObjectProperty ;
+    owl:inverseOf dsc:hasSegment ;
+    rdfs:domain dsc:TextSegment ;
+    rdfs:range dsc:Expression ;
+    rdfs:label "in expression"@en ;
+    dsc:competencyQuestion "CQ6" .
+
+dsc:hasSegment
+    a owl:ObjectProperty ;
+    rdfs:domain dsc:Expression ;
+    rdfs:range dsc:TextSegment ;
+    rdfs:label "has segment"@en ;
+    dsc:competencyQuestion "CQ6" .
+
+dsc:unitInExpression
+    a owl:ObjectProperty ;
+    rdfs:domain dsc:TextualUnit ;
+    rdfs:range dsc:Expression ;
+    rdfs:label "unit in expression"@en ;
+    skos:definition "States which expression the analytical unit belongs to."@en ;
+    dsc:competencyQuestion "CQ6, CQ7" .
+
+dsc:comprisesSegment
+    a owl:ObjectProperty ;
+    rdfs:domain dsc:TextualUnit ;
+    rdfs:range dsc:TextSegment ;
+    rdfs:label "comprises segment"@en ;
+    skos:definition "Relates an analytical textual unit to one of the TEI segments that constitute it."@en ;
+    dsc:teiEquivalent "join/@target or stand-off target list" ;
+    dsc:competencyQuestion "CQ6, CQ8" .
+
+dsc:hasAnchor
+    a owl:ObjectProperty ;
+    rdfs:domain dsc:TextualUnit ;
+    rdfs:range oa:SpecificResource ;
+    rdfs:label "has anchor"@en ;
+    skos:definition "Links a textual unit to a selector-based anchor when the unit is finer than, or cannot be represented by, whole TEI segments."@en ;
+    dsc:competencyQuestion "CQ6, CQ17" .
+
+dsc:derivedFromTEIDocument
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:wasDerivedFrom ;
+    rdfs:domain dsc:TextSegment ;
+    rdfs:range dsc:TEIDocument ;
+    rdfs:label "derived from TEI document"@en ;
+    dsc:competencyQuestion "CQ17" .
+
+
+# =============================================================================
+# 9 Alignment and validation properties
+# =============================================================================
+
+dsc:hasAlignmentTarget
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf oa:hasTarget ;
+    rdfs:domain dsc:Alignment ;
+    rdfs:range dsc:AlignmentTarget ;
+    rdfs:label "has alignment target"@en ;
+    skos:definition "Links an alignment to the collective target containing all aligned textual units."@en ;
+    dsc:competencyQuestion "CQ7, CQ8" .
+
+dsc:hasAlignedUnit
+    a owl:ObjectProperty ;
+    rdfs:domain dsc:AlignmentTarget ;
+    rdfs:range dsc:TextualUnit ;
+    rdfs:label "has aligned unit"@en ;
+    skos:definition "Adds one textual unit to the collective target of an alignment."@en ;
+    dsc:teiEquivalent "link/@target after resolution to analytical units" ;
+    dsc:competencyQuestion "CQ7, CQ8" .
+
+dsc:alignmentLevel
+    a owl:ObjectProperty ;
+    rdfs:domain dsc:Alignment ;
+    rdfs:range skos:Concept ;
+    rdfs:label "alignment level"@en ;
+    skos:definition "The analytical granularity at which the alignment is asserted."@en ;
+    dsc:competencyQuestion "CQ9" .
+
+dsc:correspondenceType
+    a owl:ObjectProperty ;
+    rdfs:domain dsc:Alignment ;
+    rdfs:range skos:Concept ;
+    rdfs:label "correspondence type"@en ;
+    skos:definition "The descriptive kind of correspondence asserted by an alignment, distinct from a scholarly interpretation of a translation phenomenon."@en ;
+    dsc:competencyQuestion "CQ9" .
+
+dsc:generatesAlignment
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:generated ;
+    rdfs:domain dsc:AlignmentActivity ;
+    rdfs:range dsc:Alignment ;
+    rdfs:label "generates alignment"@en ;
+    dsc:competencyQuestion "CQ10" .
+
+dsc:usedModel
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:used ;
+    rdfs:domain dsc:AlignmentActivity ;
+    rdfs:range dsc:AlignmentModel ;
+    rdfs:label "used model"@en ;
+    skos:definition "Identifies the versioned computational model used by an alignment run."@en ;
+    dsc:competencyQuestion "CQ10" .
+
+dsc:usedSoftware
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:wasAssociatedWith ;
+    rdfs:domain dsc:AlignmentActivity ;
+    rdfs:range prov:SoftwareAgent ;
+    rdfs:label "used software"@en ;
+    skos:definition "Identifies the software agent that executed or supported the alignment activity."@en ;
+    dsc:competencyQuestion "CQ10" .
+
+dsc:alignmentMethod
+    a owl:ObjectProperty ;
+    rdfs:domain dsc:AlignmentActivity ;
+    rdfs:range skos:Concept ;
+    rdfs:label "alignment method"@en ;
+    dsc:competencyQuestion "CQ10" .
+
+dsc:validates
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:used ;
+    rdfs:domain dsc:ValidationActivity ;
+    rdfs:range prov:Entity ;
+    rdfs:label "validates"@en ;
+    skos:definition "Identifies the alignment or interpretive assertion examined by a validation activity."@en ;
+    dsc:competencyQuestion "CQ12" .
+
+dsc:validationResultFor
+    a owl:ObjectProperty ;
+    rdfs:domain dsc:ValidationResult ;
+    rdfs:range prov:Entity ;
+    rdfs:label "validation result for"@en ;
+    dsc:competencyQuestion "CQ12" .
+
+dsc:validationOutcome
+    a owl:ObjectProperty ;
+    rdfs:domain dsc:ValidationResult ;
+    rdfs:range skos:Concept ;
+    rdfs:label "validation outcome"@en ;
+    dsc:competencyQuestion "CQ12" .
+
+
+# =============================================================================
+# 10 Interpretive and translation-profile properties
+# =============================================================================
+
+dsc:interprets
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf oa:hasTarget ;
+    rdfs:domain dsc:InterpretiveAssertion ;
+    rdfs:label "interprets"@en ;
+    skos:definition "Identifies the alignment, unit, expression or translation about which the scholarly claim is made."@en ;
+    skos:scopeNote "Multiple values form the joint scholarly context of the assertion under DiScEPT semantics; an application profile must preserve that collective reading."@en ;
+    dsc:competencyQuestion "CQ13, CQ14, CQ15" .
+
+dsc:translationPhenomenon
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf oa:hasBody ;
+    rdfs:domain dsc:InterpretiveAssertion ;
+    rdfs:range skos:Concept ;
+    rdfs:label "translation phenomenon"@en ;
+    skos:definition "A local translation phenomenon attributed by a scholarly claim."@en ;
+    skos:scopeNote "Allowed concepts are governed by the dsc:translationPhenomena scheme and checked by SHACL."@en ;
+    dsc:competencyQuestion "CQ13, CQ14" .
+
+dsc:translationTrait
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf oa:hasBody ;
+    rdfs:domain dsc:InterpretiveAssertion ;
+    rdfs:range skos:Concept ;
+    rdfs:label "translation trait"@en ;
+    skos:definition "A recurrent or profile-level feature attributed to a translation."@en ;
+    skos:scopeNote "A trait is an explicit, provenance-bearing scholarly claim. Quantitative aggregation can support it, but OWL does not infer the claim automatically from local phenomena."@en ;
+    dsc:competencyQuestion "CQ15, CQ16" .
+
+dsc:certainty
+    a owl:ObjectProperty ;
+    rdfs:domain dsc:InterpretiveAssertion ;
+    rdfs:range skos:Concept ;
+    rdfs:label "certainty"@en ;
+    skos:definition "The degree of certainty assigned by the author of an interpretive assertion."@en ;
+    dsc:competencyQuestion "CQ14, CQ15" .
+
+
+# =============================================================================
+# 11 Material and IIIF properties
+# =============================================================================
+
+dsc:digitises
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:wasDerivedFrom ;
+    rdfs:domain dsc:DigitalSurrogate ;
+    rdfs:range lrmoo:F5_Item ;
+    rdfs:label "digitises"@en ;
+    skos:definition "Links a digital surrogate to the material item from which it derives."@en ;
+    dsc:competencyQuestion "CQ18" .
+
+dsc:regionOf
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf oa:hasSource ;
+    rdfs:domain dsc:ImageRegion ;
+    rdfs:range dsc:DigitalSurrogate ;
+    rdfs:label "region of"@en ;
+    dsc:competencyQuestion "CQ18" .
+
+dsc:isTranscriptionOf
+    a owl:ObjectProperty ;
+    rdfs:range dsc:ImageRegion ;
+    rdfs:label "is transcription of"@en ;
+    skos:definition "Relates a text segment or textual unit to the image region that carries the transcribed text."@en ;
+    dsc:teiEquivalent "@facs or stand-off facsimile link" ;
+    dsc:competencyQuestion "CQ18" .
+
+
+# =============================================================================
+# 12 Datatype properties
+# =============================================================================
+
+dsc:xmlId
+    a owl:DatatypeProperty ;
+    rdfs:domain dsc:TextSegment ;
+    rdfs:range xsd:NCName ;
+    rdfs:label "xml:id"@en ;
+    skos:definition "The source xml:id used with the expression and TEI-document identifier to mint or recover the segment IRI."@en ;
+    dsc:teiEquivalent "@xml:id" ;
+    dsc:competencyQuestion "CQ17, CQ20" .
+
+dsc:teiElement
+    a owl:DatatypeProperty ;
+    rdfs:domain dsc:TextSegment ;
+    rdfs:range xsd:string ;
+    rdfs:label "TEI element"@en ;
+    skos:definition "The TEI element name from which the segment was derived."@en ;
+    dsc:competencyQuestion "CQ17" .
+
+dsc:content
+    a owl:DatatypeProperty ;
+    rdfs:subPropertyOf crm:P190_has_symbolic_content ;
+    rdfs:domain dsc:TextSegment ;
+    rdfs:range rdf:langString ;
+    rdfs:label "content"@en ;
+    skos:definition "Plain-text content copied from the authoritative TEI for querying and display."@en ;
+    dsc:competencyQuestion "CQ6" .
+
+dsc:anchorQuote
+    a owl:DatatypeProperty ;
+    rdfs:domain dsc:TextSegment ;
+    rdfs:range xsd:string ;
+    rdfs:label "anchor quote"@en ;
+    skos:definition "A short text trace used to detect and repair a broken TEI anchor."@en ;
+    dsc:competencyQuestion "CQ17" .
+
+dsc:confidence
+    a owl:DatatypeProperty ;
+    rdfs:domain dsc:AlignmentGeneration ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "confidence"@en ;
+    skos:definition "A run-specific confidence value produced during the qualified generation of an alignment."@en ;
+    skos:scopeNote "The permitted numeric interval is a SHACL constraint. This value is distinct from scholarly certainty."@en ;
+    dsc:competencyQuestion "CQ11" .
+
+dsc:similarityThreshold
+    a owl:DatatypeProperty ;
+    rdfs:domain dsc:AlignmentActivity ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "similarity threshold"@en ;
+    dsc:competencyQuestion "CQ10" .
+
+dsc:algorithm
+    a owl:DatatypeProperty ;
+    rdfs:domain dsc:AlignmentActivity ;
+    rdfs:range xsd:string ;
+    rdfs:label "algorithm"@en ;
+    dsc:competencyQuestion "CQ10" .
+
+
+# =============================================================================
+# 13 Term status
+# =============================================================================
+
+dsc:Edition                 vs:term_status "testing" .
+dsc:Work                    vs:term_status "testing" .
+dsc:Expression              vs:term_status "testing" .
+dsc:Translation             vs:term_status "testing" .
+dsc:TranslationAct          vs:term_status "testing" .
+dsc:TEIDocument             vs:term_status "testing" .
+dsc:TextSegment             vs:term_status "testing" .
+dsc:TextualUnit             vs:term_status "testing" .
+dsc:AlignmentTarget         vs:term_status "testing" .
+dsc:Alignment               vs:term_status "testing" .
+dsc:AlignmentActivity       vs:term_status "testing" .
+dsc:AlignmentGeneration     vs:term_status "testing" .
+dsc:AlignmentModel          vs:term_status "testing" .
+dsc:ValidationActivity      vs:term_status "testing" .
+dsc:ValidationResult        vs:term_status "testing" .
+dsc:InterpretiveAssertion   vs:term_status "testing" .
+dsc:DigitalSurrogate        vs:term_status "testing" .
+dsc:ImageRegion             vs:term_status "testing" .
