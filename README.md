@@ -2,9 +2,9 @@
 
 **Revised draft 0.3.1 | 16 September 2026**
 
-This proposal defines a compact semantic model for multilingual digital scholarly editions. TEI/XML remains authoritative for textual content and documentary structure; RDF/OWL represents works, expressions, explicit translation relations, alignments, scholarly claims and provenance. A separate SHACL shapes graph may later validate whether a dataset satisfies the DiScEPT profile.
+This proposal defines a compact semantic model for multilingual digital scholarly editions. TEI/XML remains authoritative for textual content and documentary structure; RDF/OWL represents works, expressions, explicit translation relations, alignments, scholarly claims and provenance.
 
-The main revision is that translation is now modelled at three connected levels: direct relations between expressions, local translation phenomena, and recurrent translation traits or profiles. Persistent identification, interpretation provenance and run-specific confidence are also treated as first-order design requirements.
+The main revision is that translation is now modeled at three connected levels: direct relations between expressions, local translation phenomena, and recurrent translation traits or profiles. Persistent identification, interpretation provenance and run-specific confidence are also treated as first-order design requirements.
 
 ### Repository contents
 
@@ -37,10 +37,7 @@ The architecture combines complementary representations with different domains o
 |------------------|---------------------------------------------------------------------------------------------|------------------------------|
 | TEI/XML          | Textual content, document structure, editorial markup and the link to facsimiles            | Authoritative representation |
 | RDF/OWL          | Entities, translation relations, alignments, interpretations, provenance and external links | Semantic representation      |
-| SHACL            | Required properties, cardinalities, value ranges, controlled vocabularies and PID patterns  | Conformance validation       |
 | Corpus interface | Concordances, CQL, frequencies, collocations and parallel-corpus queries                    | Optional application layer   |
-
-OWL axioms therefore describe meaning and support inference; they are not used as substitutes for closed-world data validation. A missing required value is reported by SHACL, not inferred to exist by OWL.
 
 ## 3 Reused standards
 
@@ -58,9 +55,11 @@ OWL axioms therefore describe meaning and support inference; they are not used a
 
 FaBiO is not used as an alternative bibliographic backbone. It remains aligned with the FRBR model, whereas DiScEPT adopts the current LRMoo model. FaBiO classes may be added as supplementary types when a concrete interoperability use case requires them. Any correspondence with LRMoo must be documented in a separate mapping module. The core ontology must not declare broad equivalence between the two class systems without term-by-term verification.
 
-DiScEPT does not adopt a single domain ontology for translation. Instead, it combines established semantic models according to the different dimensions involved in representing translated texts. LRMoo and CIDOC CRM provide the bibliographic and event-based backbone; Web Annotation supports addressable textual relations and anchoring; PROV-O and HiCO represent provenance and scholarly interpretation; and SKOS organises controlled vocabularies for translation phenomena, traits, methods and validation. This modular approach allows the model to distinguish the translation relation between expressions, the historical activity that produced a translation, correspondences between analytical textual units, and scholarly claims about those correspondences rather than collapsing them into a single semantic relation.
+DiScEPT does not adopt a single domain ontology for translation. Instead, it combines established semantic models according to the different dimensions involved in representing translated texts. LRMoo and CIDOC CRM provide the bibliographic and event-based backbone; Web Annotation supports addressable textual relations and anchoring; PROV-O and HiCO represent provenance and scholarly interpretation; and SKOS organizes controlled vocabularies for translation phenomena, traits, methods and validation. This modular approach allows the model to distinguish the translation relation between expressions, the historical activity that produced a translation, correspondences between analytical textual units, and scholarly claims about those correspondences rather than collapsing them into a single semantic relation.
 
 OntoLex-Lemon and its VarTrans module are relevant to lexical and sense-level variation and translation relations, but they are not part of the current DiScEPT core. The present model focuses on textual expressions, analytical units, alignments and provenance-bearing scholarly interpretation. OntoLex-Lemon/VarTrans may therefore be introduced as a complementary lexical layer when word-level alignment or lexical-semantic analysis requires explicit representation of lexical entries, senses or concepts. Such an extension should reuse the existing DiScEPT identifiers for textual units and alignments rather than replace the current alignment model.
+
+DiScEPT also develops earlier modeling work carried out for the *Biflow–Toscana Bilingue* ontology. Biflow made language, textual derivation, translator responsibility and manuscript context explicit dimensions of the representation. DiScEPT preserves these scholarly concerns but does not import the Biflow vocabulary wholesale: it recasts them through the current LRMoo/CIDOC CRM stack and an event-based `dsc:TranslationAct`, while adding fine-grained textual alignment, interpretation provenance, computational generation and validation. The Biflow ontology is therefore treated as a methodological and historical antecedent rather than as an additional core dependency.
 
 ## 4 Bibliographic model and explicit translation
 
@@ -73,17 +72,20 @@ The translation relation is therefore data in the graph, not an inference recons
 > Translation C dsc:translates Translation B  
 > Translation B dsc:translates Expression A
 
+The language of an expression is represented with the reused CIDOC CRM property `crm:P72_has_language`. DiScEPT does not coin a parallel project-specific language property. This keeps the expression model interoperable while preserving the explicit linguistic dimension already central to earlier Biflow modeling.
+
 ### 4.1 Translation acts and sources
 
-The activity that produced a translation is represented as dsc:TranslationAct, a specialisation of LRMoo F28 Expression Creation and PROV Activity. It creates the translation expression, uses its direct source expression and, when known, identifies the exact source manifestation used by the translator.
+The activity that produced a translation is represented as `dsc:TranslationAct`, a specialisation of LRMoo F28 Expression Creation and PROV Activity. It creates the translation expression, uses its direct source expression and, when known, identifies the source manifestation or even the specific material item actually used by the translator.
 
 > TranslationAct  
 > dsc:usesSourceExpression SourceExpression  
 > dsc:usesSourceManifestation SourceManifestation  
+> dsc:usesSourceItem SourceItem  
 > dsc:createsTranslation TranslationExpression  
 > dsc:translator Translator
 
-This event-based pattern carries date, place and responsibility without turning source and target into permanent qualities of an expression. The same expression may be a target in one direct relation and a source in another.
+`dsc:usesSourceManifestation` is used when the relevant edition or publication is known; `dsc:usesSourceItem` is used when the evidence identifies a particular manuscript or copy, modeled as LRMoo F5 Item. The temporal and spatial dimensions of the translation act reuse `crm:P4_has_time-span` and `crm:P7_took_place_at`; translator responsibility is aligned with `crm:P14_carried_out_by`. This event-based pattern therefore carries date, place, responsibility and source evidence without turning source and target into permanent qualities of an expression. The same expression may be a target in one direct relation and a source in another.
 
 ### 4.2 Translation and interpreting
 
@@ -111,11 +113,11 @@ A dsc:Alignment is an addressable entity because it must carry provenance, level
 
 This pattern replaces the earlier use of oa:Composite. Composite appears only in an informative appendix to the final Web Annotation vocabulary and was removed from the normative vocabulary. DiScEPT therefore defines its own collective target and can provide a JSON-LD mapping when an exchange profile requires one.
 
-The ontology does not contain an OWL minimum-cardinality restriction. The rule that a normal alignment must contain at least two units belongs in SHACL. Alignments may be 1:1, 1:n, n:1 or n:m and may involve more than two languages.
+The ontology does not impose a minimum-cardinality restriction on alignments. In the current draft, the expectation that a normal alignment contains at least two textual units is treated as an application-level data requirement rather than as an OWL axiom. Alignments may be 1:1, 1:n, n:1 or n:m and may involve more than two languages.
 
 ### 6.1 Omission and addition
 
-Omission and addition require a separate pattern because an absence is not a textual segment. In draft 0.3.1 they are represented as interpretive assertions about the relevant translation and one or more attested textual units; the model does not create fictitious empty segments. Before the first SHACL profile is fixed, a pilot dataset must determine whether an explicit AlignmentGap entity is needed for navigation and visualisation.
+Omission and addition require a separate pattern because an absence is not a textual segment. In draft 0.3.1 they are represented as interpretive assertions about the relevant translation and one or more attested textual units; the model does not create fictitious empty segments. A pilot dataset must determine whether an explicit AlignmentGap entity is needed for navigation and visualisation.
 
 ## 7 Translation phenomena, traits and profiles
 
@@ -131,7 +133,7 @@ Textual alignment is therefore not treated as an ontological definition of trans
 
 Local phenomena and profile-level traits are SKOS concepts rather than OWL classes. A quantitative query may derive counts and distributions from local assertions. The scholarly conclusion that a pattern constitutes a translation trait remains an explicit InterpretiveAssertion with its own provenance. OWL must not infer that conclusion automatically from an arbitrary frequency threshold.
 
-Draft 0.3.1 includes the initial vocabularies directly in `discept.ttl`. The first local translation phenomena are explicitation, implicitation, omission, addition, condensation, expansion, modulation, transposition and reordering. Separate SKOS schemes are used for correspondence types, alignment levels, alignment methods, certainty levels and validation outcomes, so that analytically distinct categories are not collapsed into a single list.
+Draft 0.3.1 includes the initial vocabularies directly in `discept.ttl`. The first local translation phenomena are explicitation, implicitation, omission, addition, condensation, expansion, modulation, transposition and reordering. The initial alignment-level vocabulary contains token, verse, sentence, paragraph, structural and semantic levels; alignment methods distinguish manual, automatic and semi-automatic workflows; and initial certainty and validation vocabularies provide low/medium/high certainty and accepted/rejected/revised outcomes. The correspondence-types scheme is deliberately left open until pilot datasets establish distinctions that do not duplicate alignment level or translation-phenomenon interpretation.
 
 > Local assertions  
 > └─ quantitative aggregation  
@@ -214,22 +216,7 @@ The PID policy must decide:
 >
 > • redirect, tombstone and deprecation behaviour when resources move or are withdrawn.
 
-## 12 Ontology and SHACL validation
-
-DiScEPT has one semantic model expressed through coordinated artefacts. In the current repository, `discept.ttl` defines the meaning of classes and properties and also contains the initial governed SKOS vocabularies. A future `discept_shapes.ttl` will define the conditions that a dataset must satisfy once the model has been tested on representative data. The shapes graph will be a conformance layer, not a second ontology.
-
-| **Question**                         | **OWL and RDFS**                                                  | **SHACL**                                         |
-|--------------------------------------|-------------------------------------------------------------------|---------------------------------------------------|
-| What is an Alignment                 | Class meaning and relation to OA Annotation                       | Not defined here                                  |
-| What can an alignment target contain | Range semantics                                                   | Required class and minimum number of units        |
-| What does translates mean            | Explicit non-transitive relation aligned with LRMoo and CIDOC CRM | Required source count for a Translation           |
-| Where can confidence occur           | Domain is AlignmentGeneration                                     | Decimal between 0 and 1                           |
-| Which vocabulary is permitted        | Range is skos:Concept                                             | Value must belong to the designated ConceptScheme |
-| Which resources require PIDs         | IRI-based resource semantics                                      | Node-kind and pattern checks                      |
-
-The shapes graph should be drafted only after the ontology has been tested on representative data. Otherwise early validation rules risk encoding assumptions that fail for relay translation, n:m alignment, omission, discontinuous units or competing interpretations.
-
-## 13 Interoperability with corpus systems
+## 12 Interoperability with corpus systems
 
 EPTIC and NoSketch Engine are useful reference cases for parallel and multimodal corpus management, but they are not ontological backbones for DiScEPT. Their value lies in testing sentence-level alignment, written and spoken modalities, synchronisation with media and parallel-corpus queries.
 
@@ -239,7 +226,7 @@ EPTIC and NoSketch Engine are useful reference cases for parallel and multimodal
 
 A corpus export should reuse stable identifiers for expressions and aligned units. The same textual resources can then support both semantic queries and linguistic queries without making the corpus system part of the ontology.
 
-## 14 Competency questions
+## 13 Competency questions
 
 > 1\. Which expressions realise the same work?
 >
@@ -247,7 +234,7 @@ A corpus export should reuse stable identifiers for expressions and aligned unit
 >
 > 3\. Who performed a translation act, when and where?
 >
-> 4\. Which expression and manifestation were actually used as the source of a translation?
+> 4\. Which expression, manifestation or specific item was actually used as the source of a translation?
 >
 > 5\. Does an edition define one, several or no base expressions?
 >
@@ -281,13 +268,13 @@ A corpus export should reuse stable identifiers for expressions and aligned unit
 >
 > 20\. Which PID and version identify the cited edition, expression, segment, alignment or assertion?
 
-## 15 Repository and planned artefacts
+## 14 Repository and planned artefacts
 
 The current repository is deliberately compact: this README contains the conceptual proposal, `discept.ttl` contains both the ontology and the initial SKOS vocabularies, `LICENSE.md` states the licence, and `examples/dante-inferno-i.ttl` provides the first worked dataset.
 
-When the model has been tested on further cases, the repository may add a separate SHACL shapes graph, larger vocabulary modules and TEI–RDF, FaBiO or corpus-export mappings. These components should be introduced only when they contain operational material and should be versioned independently while declaring which ontology version they conform to.
+When the model has been tested on further cases, the repository may add larger vocabulary modules and TEI–RDF, FaBiO, OntoLex or corpus-export mappings. These components should be introduced only when they contain operational material and should be versioned independently while declaring which ontology version they conform to.
 
-## 16 Open design decisions and next test
+## 15 Open design decisions and next test
 
 The following decisions remain open and should be resolved through a pilot dataset:
 
@@ -303,12 +290,15 @@ The following decisions remain open and should be resolved through a pilot datas
 >
 > • the exact FaBiO mappings required by concrete interoperability scenarios.
 
-The next test dataset should contain one source expression, a direct translation, a relay translation, 1:1 and 1:n alignments, an omission, an automatic alignment with confidence, a human validation, two competing local interpretations and one translation-trait claim derived from several observations. Only after this test should the first SHACL profile be frozen.
+The next test dataset should contain one source expression, a direct translation, a relay translation, 1:1 and 1:n alignments, an omission, an automatic alignment with confidence, a human validation, two competing local interpretations and one translation-trait claim derived from several observations. This test should be used to refine the ontology, vocabularies and implementation guidance before a more stable release is issued.
 
-## 17 Reference specifications
+## 16 Reference specifications
 
-| [<u>LRMoo version 1.1.1</u>](https://cidoc-crm.org/lrmoo/ModelVersion/version-1.1.1) | [<u>CIDOC CRM</u>](https://www.cidoc-crm.org/)                                  |
-|--------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
-| [<u>W3C Web Annotation Data Model</u>](https://www.w3.org/TR/annotation-model/)      | [<u>W3C Web Annotation Vocabulary</u>](https://www.w3.org/TR/annotation-vocab/) |
-| [<u>PROV-O</u>](https://www.w3.org/TR/prov-o/)                                       | [<u>SHACL</u>](https://www.w3.org/TR/shacl/)                                    |
-| [<u>Historical Context Ontology</u>](http://purl.org/emmedi/hico)                    | [<u>FaBiO</u>](https://www.sparontologies.net/ontologies/fabio)                 |
+| Reference | Reference |
+|---|---|
+| [<u>LRMoo version 1.1.1</u>](https://cidoc-crm.org/lrmoo/ModelVersion/version-1.1.1) | [<u>CIDOC CRM</u>](https://www.cidoc-crm.org/) |
+| [<u>W3C Web Annotation Data Model</u>](https://www.w3.org/TR/annotation-model/) | [<u>W3C Web Annotation Vocabulary</u>](https://www.w3.org/TR/annotation-vocab/) |
+| [<u>PROV-O</u>](https://www.w3.org/TR/prov-o/) | [<u>SKOS</u>](https://www.w3.org/TR/skos-reference/) |
+| [<u>Historical Context Ontology</u>](http://purl.org/emmedi/hico) | [<u>FaBiO</u>](https://www.sparontologies.net/ontologies/fabio) |
+| [<u>OntoLex-Lemon</u>](https://www.w3.org/2016/05/ontolex/) | [<u>VarTrans module</u>](https://www.w3.org/community/ontolex/wiki/Final_Model_Specification) |
+| [<u>Biflow ontology</u>](https://catalogobiflow.vedph.it/ontospy/) | [<u>Biflow RDF namespace</u>](https://biflow.humanitiesdata.dev/rdf/biflow#) |
