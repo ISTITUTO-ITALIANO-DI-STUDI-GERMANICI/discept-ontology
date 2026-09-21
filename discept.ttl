@@ -17,12 +17,11 @@
 @prefix vs:      <http://www.w3.org/2003/06/sw-vocab-status/ns#> .
 
 # =============================================================================
-# DiScEPT Ontology 0.3.0 — rewritten draft
+# DiScEPT Ontology 0.3.1 — revised draft
 #
 # This ontology defines domain semantics only. Dataset-conformance rules such
-# as required properties, cardinalities, value ranges and PID patterns belong
-# in a separate SHACL shapes graph. The two files are complementary technical
-# artefacts, not competing ontologies.
+# as required properties, cardinalities, value ranges and PID patterns are
+# intentionally not formalized in this draft.
 #
 # TEI remains authoritative for textual content and documentary structure.
 # RDF represents entities, translation relations, alignments, interpretations
@@ -44,12 +43,16 @@
     dcterms:created "2026-09-15"^^xsd:date ;
     dcterms:modified "2026-09-16"^^xsd:date ;
     dcterms:source <https://github.com/ISTITUTO-ITALIANO-DI-STUDI-GERMANICI/DiScEPT> ;
+    dcterms:relation <https://biflow.humanitiesdata.dev/rdf/biflow#> ;
     dcterms:conformsTo
         <https://cidoc-crm.org/lrmoo/ModelVersion/version-1.1.1> ,
         <https://www.w3.org/TR/annotation-model/> ,
-        <https://www.w3.org/TR/prov-o/> ;
+        <https://www.w3.org/TR/prov-o/> ,
+        <http://purl.org/emmedi/hico/> ;
+    owl:priorVersion <https://istituto-italiano-di-studi-germanici.github.io/DiScEPT/onto/0.3.0> ;
     owl:versionIRI <https://istituto-italiano-di-studi-germanici.github.io/DiScEPT/onto/0.3.1> ;
-    owl:versionInfo "0.3.1 — draft with initial governed SKOS vocabularies; no coined term is stable."@en ;
+    owl:versionInfo "0.3.1 — translation and vocabulary revision; no coined term is stable."@en ;
+    skos:historyNote "This version develops earlier translation-modeling work in the Biflow–Toscana Bilingue ontology while adopting current LRMoo/CIDOC CRM patterns and adding fine-grained alignment, interpretation, provenance and validation."@en ;
     vann:preferredNamespacePrefix "dsc" ;
     vann:preferredNamespaceUri "https://istituto-italiano-di-studi-germanici.github.io/DiScEPT/onto#" .
 
@@ -98,6 +101,7 @@ dsc:Expression
     rdfs:label "expression"@en ;
     skos:definition "A linguistic realisation of a work in a language and state that can be identified and compared."@en ;
     skos:scopeNote "Source and target are contextual roles in a translation relation, not permanent qualities of an expression."@en ;
+    dsc:implementationNote "Record the language of an expression with crm:P72_has_language rather than with a project-specific language property."@en ;
     dsc:competencyQuestion "CQ1, CQ2, CQ3" .
 
 dsc:Translation
@@ -113,7 +117,8 @@ dsc:TranslationAct
     rdfs:subClassOf lrmoo:F28_Expression_Creation , prov:Activity ;
     rdfs:label "translation act"@en ;
     skos:definition "The activity that uses a source expression and produces a translation expression."@en ;
-    skos:scopeNote "The act carries responsibility, date, place and information about the source expression or manifestation actually used."@en ;
+    skos:scopeNote "The act carries responsibility, date, place and information about the source expression, manifestation or specific item actually used."@en ;
+    dsc:implementationNote "Use crm:P4_has_time-span for temporal extent and crm:P7_took_place_at for place when known; these are reused directly rather than duplicated as DiScEPT properties."@en ;
     dsc:competencyQuestion "CQ3, CQ4" .
 
 dsc:TEIDocument
@@ -212,7 +217,10 @@ dsc:ValidationResult
 
 dsc:InterpretiveAssertion
     a owl:Class ;
-    rdfs:subClassOf oa:Annotation , prov:Entity ;
+    rdfs:subClassOf oa:Annotation , prov:Entity ,
+        [ a owl:Restriction ;
+          owl:onProperty prov:wasGeneratedBy ;
+          owl:allValuesFrom hico:InterpretationAct ] ;
     owl:disjointWith dsc:Alignment ;
     rdfs:label "interpretive assertion"@en ;
     skos:definition "A scholarly claim about an alignment, textual unit, expression or translation."@en ;
@@ -241,60 +249,199 @@ dsc:ImageRegion
 
 
 # =============================================================================
-# 6 Controlled-vocabulary schemes
+# 6 Controlled-vocabulary schemes and initial concepts
 #
-# Scheme membership and allowed values are validation concerns and therefore
-# belong in SHACL. The vocabularies themselves may be maintained in a separate
-# file without changing the ontology.
+# Scheme membership and application-level value constraints are not formalized
+# in this draft. The vocabularies themselves may later be maintained in a
+# separate file without changing the ontology. Definitions below are initial
+# working definitions and remain subject to vocabulary governance.
 # =============================================================================
 
 dsc:correspondenceTypes
     a skos:ConceptScheme ;
     skos:prefLabel "Correspondence types"@en ;
-    skos:prefLabel "Tipi di corrispondenza"@it ;
-    skos:scopeNote "Descriptive relations between aligned textual units. These values do not replace provenance-bearing interpretations of translation phenomena."@en .
+    skos:editorialNote "Initial correspondence-type values are intentionally left open until pilot datasets establish a stable distinction from alignment level and translation-phenomenon interpretation."@en .
 
 dsc:alignmentLevels
     a skos:ConceptScheme ;
-    skos:prefLabel "Alignment levels"@en ;
-    skos:prefLabel "Livelli di allineamento"@it .
+    skos:prefLabel "Alignment levels"@en .
+
+dsc:tokenLevel
+    a skos:Concept ;
+    skos:inScheme dsc:alignmentLevels ;
+    skos:prefLabel "token"@en ;
+    skos:definition "Alignment at the level of individual tokens or token-like lexical units."@en .
+
+dsc:verseLevel
+    a skos:Concept ;
+    skos:inScheme dsc:alignmentLevels ;
+    skos:prefLabel "verse"@en ;
+    skos:definition "Alignment at verse or line level."@en .
+
+dsc:sentenceLevel
+    a skos:Concept ;
+    skos:inScheme dsc:alignmentLevels ;
+    skos:prefLabel "sentence"@en ;
+    skos:definition "Alignment at sentence level."@en .
+
+dsc:paragraphLevel
+    a skos:Concept ;
+    skos:inScheme dsc:alignmentLevels ;
+    skos:prefLabel "paragraph"@en ;
+    skos:definition "Alignment at paragraph level."@en .
+
+dsc:structuralLevel
+    a skos:Concept ;
+    skos:inScheme dsc:alignmentLevels ;
+    skos:prefLabel "structural"@en ;
+    skos:definition "Alignment between larger structural units such as sections, chapters or scenes."@en .
+
+dsc:semanticLevel
+    a skos:Concept ;
+    skos:inScheme dsc:alignmentLevels ;
+    skos:prefLabel "semantic"@en ;
+    skos:definition "Alignment based on semantic correspondence when documentary segmentation alone does not identify the relevant relation."@en .
 
 dsc:alignmentMethods
     a skos:ConceptScheme ;
-    skos:prefLabel "Alignment methods"@en ;
-    skos:prefLabel "Metodi di allineamento"@it .
+    skos:prefLabel "Alignment methods"@en .
+
+dsc:manualAlignment
+    a skos:Concept ;
+    skos:inScheme dsc:alignmentMethods ;
+    skos:prefLabel "manual"@en ;
+    skos:definition "Alignment asserted directly by a human editor or researcher."@en .
+
+dsc:automaticAlignment
+    a skos:Concept ;
+    skos:inScheme dsc:alignmentMethods ;
+    skos:prefLabel "automatic"@en ;
+    skos:definition "Alignment proposed by a computational process without prior human acceptance."@en .
+
+dsc:semiAutomaticAlignment
+    a skos:Concept ;
+    skos:inScheme dsc:alignmentMethods ;
+    skos:prefLabel "semi-automatic"@en ;
+    skos:definition "Alignment produced through an iterative workflow combining computational proposals and human intervention."@en .
 
 dsc:translationPhenomena
     a skos:ConceptScheme ;
     skos:prefLabel "Translation phenomena"@en ;
-    skos:prefLabel "Fenomeni traduttivi"@it ;
-    skos:scopeNote "Concepts for local observations, such as explicitation, omission, condensation or reordering."@en .
+    skos:scopeNote "Concepts for local, provenance-bearing observations about translation. The initial working vocabulary includes explicitation, implicitation, omission, addition, condensation, expansion, modulation, transposition and reordering."@en ;
+    skos:editorialNote "The terminology and definitions are initial and should be refined through the project's translation-studies vocabulary governance."@en .
+
+dsc:explicitation
+    a skos:Concept ;
+    skos:inScheme dsc:translationPhenomena ;
+    skos:prefLabel "explicitation"@en ;
+    skos:definition "A local phenomenon in which information or relations are rendered more explicit in the target textual unit than in the source."@en .
+
+dsc:implicitation
+    a skos:Concept ;
+    skos:inScheme dsc:translationPhenomena ;
+    skos:prefLabel "implicitation"@en ;
+    skos:definition "A local phenomenon in which information or relations are rendered less explicit in the target textual unit than in the source."@en .
+
+dsc:omission
+    a skos:Concept ;
+    skos:inScheme dsc:translationPhenomena ;
+    skos:prefLabel "omission"@en ;
+    skos:definition "A local phenomenon in which attested source material is interpreted as having no corresponding realization in the relevant target context."@en ;
+    skos:scopeNote "Omission is represented by an interpretive assertion about attested textual units; DiScEPT does not create a fictitious empty target segment."@en .
+
+dsc:addition
+    a skos:Concept ;
+    skos:inScheme dsc:translationPhenomena ;
+    skos:prefLabel "addition"@en ;
+    skos:definition "A local phenomenon in which attested target material is interpreted as having no corresponding realization in the relevant source context."@en ;
+    skos:scopeNote "Addition is represented by an interpretive assertion about attested textual units; DiScEPT does not create a fictitious empty source segment."@en .
+
+dsc:condensation
+    a skos:Concept ;
+    skos:inScheme dsc:translationPhenomena ;
+    skos:prefLabel "condensation"@en ;
+    skos:definition "A local phenomenon in which source content is rendered in a more compact target span."@en .
+
+dsc:expansion
+    a skos:Concept ;
+    skos:inScheme dsc:translationPhenomena ;
+    skos:prefLabel "expansion"@en ;
+    skos:definition "A local phenomenon in which source content is rendered through a more extended target span."@en .
+
+dsc:modulation
+    a skos:Concept ;
+    skos:inScheme dsc:translationPhenomena ;
+    skos:prefLabel "modulation"@en ;
+    skos:definition "A local semantic shift involving a change of conceptual perspective or construal between corresponding units."@en .
+
+dsc:transposition
+    a skos:Concept ;
+    skos:inScheme dsc:translationPhenomena ;
+    skos:prefLabel "transposition"@en ;
+    skos:definition "A local shift in grammatical category or syntactic realization between corresponding units."@en .
+
+dsc:reordering
+    a skos:Concept ;
+    skos:inScheme dsc:translationPhenomena ;
+    skos:prefLabel "reordering"@en ;
+    skos:definition "A local phenomenon in which corresponding textual material occurs in a different relative order."@en .
 
 dsc:translationTraits
     a skos:ConceptScheme ;
     skos:prefLabel "Translation traits"@en ;
-    skos:prefLabel "Tratti traduttivi"@it ;
     skos:scopeNote "Concepts for recurrent or profile-level features of a translation. A trait must be asserted with provenance and may be derived from multiple local observations."@en .
+
+dsc:explicitationTendency
+    a skos:Concept ;
+    skos:inScheme dsc:translationTraits ;
+    skos:prefLabel "tendency towards explicitation"@en ;
+    skos:definition "A recurrent translation trait in which multiple observations support a scholarly claim of systematic or notable explicitation."@en .
 
 dsc:certaintyLevels
     a skos:ConceptScheme ;
-    skos:prefLabel "Certainty levels"@en ;
-    skos:prefLabel "Livelli di certezza"@it .
+    skos:prefLabel "Certainty levels"@en .
+
+dsc:lowCertainty
+    a skos:Concept ;
+    skos:inScheme dsc:certaintyLevels ;
+    skos:prefLabel "low certainty"@en .
+
+dsc:mediumCertainty
+    a skos:Concept ;
+    skos:inScheme dsc:certaintyLevels ;
+    skos:prefLabel "medium certainty"@en .
+
+dsc:highCertainty
+    a skos:Concept ;
+    skos:inScheme dsc:certaintyLevels ;
+    skos:prefLabel "high certainty"@en .
 
 dsc:validationOutcomes
     a skos:ConceptScheme ;
-    skos:prefLabel "Validation outcomes"@en ;
-    skos:prefLabel "Esiti della validazione"@it .
+    skos:prefLabel "Validation outcomes"@en .
+
+dsc:accepted
+    a skos:Concept ;
+    skos:inScheme dsc:validationOutcomes ;
+    skos:prefLabel "accepted"@en .
+
+dsc:rejected
+    a skos:Concept ;
+    skos:inScheme dsc:validationOutcomes ;
+    skos:prefLabel "rejected"@en .
+
+dsc:revised
+    a skos:Concept ;
+    skos:inScheme dsc:validationOutcomes ;
+    skos:prefLabel "revised"@en .
 
 dsc:interpretationTypes
     a skos:ConceptScheme ;
-    skos:prefLabel "Interpretation types"@en ;
-    skos:prefLabel "Tipi di interpretazione"@it .
+    skos:prefLabel "Interpretation types"@en .
 
 dsc:interpretationCriteria
     a skos:ConceptScheme ;
-    skos:prefLabel "Interpretation criteria"@en ;
-    skos:prefLabel "Criteri interpretativi"@it .
+    skos:prefLabel "Interpretation criteria"@en .
 
 dsc:translationPhenomenonAttribution
     a skos:Concept , hico:InterpretationType ;
@@ -315,269 +462,6 @@ dsc:quantitativeAggregation
     a skos:Concept , hico:InterpretationCriterion ;
     skos:inScheme dsc:interpretationCriteria ;
     skos:prefLabel "quantitative aggregation"@en .
-
-
-# -----------------------------------------------------------------------------
-# 6.1 Correspondence types
-# -----------------------------------------------------------------------------
-
-dsc:equivalence
-    a skos:Concept ;
-    skos:inScheme dsc:correspondenceTypes ;
-    skos:topConceptOf dsc:correspondenceTypes ;
-    skos:prefLabel "equivalence"@en ;
-    skos:prefLabel "equivalenza"@it ;
-    skos:definition "A correspondence in which the aligned units convey substantially comparable content and function in their local contexts."@en .
-
-dsc:partialCorrespondence
-    a skos:Concept ;
-    skos:inScheme dsc:correspondenceTypes ;
-    skos:topConceptOf dsc:correspondenceTypes ;
-    skos:prefLabel "partial correspondence"@en ;
-    skos:prefLabel "corrispondenza parziale"@it ;
-    skos:definition "A correspondence in which only part of the content or function of one aligned unit is represented by the other unit or units."@en .
-
-dsc:paraphrase
-    a skos:Concept ;
-    skos:inScheme dsc:correspondenceTypes ;
-    skos:topConceptOf dsc:correspondenceTypes ;
-    skos:prefLabel "paraphrase"@en ;
-    skos:prefLabel "parafrasi"@it ;
-    skos:definition "A correspondence based on reformulation rather than close lexical or syntactic similarity."@en .
-
-
-# -----------------------------------------------------------------------------
-# 6.2 Alignment levels
-# -----------------------------------------------------------------------------
-
-dsc:tokenLevel
-    a skos:Concept ;
-    skos:inScheme dsc:alignmentLevels ;
-    skos:topConceptOf dsc:alignmentLevels ;
-    skos:prefLabel "token level"@en ;
-    skos:prefLabel "livello di token"@it .
-
-dsc:phraseLevel
-    a skos:Concept ;
-    skos:inScheme dsc:alignmentLevels ;
-    skos:topConceptOf dsc:alignmentLevels ;
-    skos:prefLabel "phrase level"@en ;
-    skos:prefLabel "livello di sintagma"@it .
-
-dsc:sentenceLevel
-    a skos:Concept ;
-    skos:inScheme dsc:alignmentLevels ;
-    skos:topConceptOf dsc:alignmentLevels ;
-    skos:prefLabel "sentence level"@en ;
-    skos:prefLabel "livello di frase"@it .
-
-dsc:verseLevel
-    a skos:Concept ;
-    skos:inScheme dsc:alignmentLevels ;
-    skos:topConceptOf dsc:alignmentLevels ;
-    skos:prefLabel "verse level"@en ;
-    skos:prefLabel "livello di verso"@it .
-
-dsc:paragraphLevel
-    a skos:Concept ;
-    skos:inScheme dsc:alignmentLevels ;
-    skos:topConceptOf dsc:alignmentLevels ;
-    skos:prefLabel "paragraph level"@en ;
-    skos:prefLabel "livello di paragrafo"@it .
-
-dsc:structuralLevel
-    a skos:Concept ;
-    skos:inScheme dsc:alignmentLevels ;
-    skos:topConceptOf dsc:alignmentLevels ;
-    skos:prefLabel "structural level"@en ;
-    skos:prefLabel "livello strutturale"@it .
-
-dsc:semanticLevel
-    a skos:Concept ;
-    skos:inScheme dsc:alignmentLevels ;
-    skos:topConceptOf dsc:alignmentLevels ;
-    skos:prefLabel "semantic level"@en ;
-    skos:prefLabel "livello semantico"@it .
-
-
-# -----------------------------------------------------------------------------
-# 6.3 Alignment methods
-# -----------------------------------------------------------------------------
-
-dsc:manualAlignment
-    a skos:Concept ;
-    skos:inScheme dsc:alignmentMethods ;
-    skos:topConceptOf dsc:alignmentMethods ;
-    skos:prefLabel "manual alignment"@en ;
-    skos:prefLabel "allineamento manuale"@it .
-
-dsc:automaticAlignment
-    a skos:Concept ;
-    skos:inScheme dsc:alignmentMethods ;
-    skos:topConceptOf dsc:alignmentMethods ;
-    skos:prefLabel "automatic alignment"@en ;
-    skos:prefLabel "allineamento automatico"@it .
-
-dsc:hybridAlignment
-    a skos:Concept ;
-    skos:inScheme dsc:alignmentMethods ;
-    skos:topConceptOf dsc:alignmentMethods ;
-    skos:prefLabel "hybrid alignment"@en ;
-    skos:prefLabel "allineamento ibrido"@it ;
-    skos:definition "An alignment produced through a combination of computational processing and human editorial intervention."@en .
-
-
-# -----------------------------------------------------------------------------
-# 6.4 Local translation phenomena
-#
-# These concepts describe possible local phenomena. Their use in a dataset is
-# an interpretive assertion with provenance; membership in this scheme does not
-# entail that a phenomenon is present in any particular translation.
-# -----------------------------------------------------------------------------
-
-dsc:explicitation
-    a skos:Concept ;
-    skos:inScheme dsc:translationPhenomena ;
-    skos:topConceptOf dsc:translationPhenomena ;
-    skos:prefLabel "explicitation"@en ;
-    skos:prefLabel "esplicitazione"@it ;
-    skos:definition "The expression in the translation of information or relations that remain implicit in the source passage."@en .
-
-dsc:implicitation
-    a skos:Concept ;
-    skos:inScheme dsc:translationPhenomena ;
-    skos:topConceptOf dsc:translationPhenomena ;
-    skos:prefLabel "implicitation"@en ;
-    skos:prefLabel "implicitazione"@it ;
-    skos:definition "The rendering as implicit in the translation of information or relations that are expressed more explicitly in the source passage."@en .
-
-dsc:omission
-    a skos:Concept ;
-    skos:inScheme dsc:translationPhenomena ;
-    skos:topConceptOf dsc:translationPhenomena ;
-    skos:prefLabel "omission"@en ;
-    skos:prefLabel "omissione"@it ;
-    skos:definition "The absence from the translation of content represented in the source passage."@en ;
-    skos:scopeNote "An omission is asserted about attested textual resources; the data model does not create a fictitious empty text segment."@en .
-
-dsc:addition
-    a skos:Concept ;
-    skos:inScheme dsc:translationPhenomena ;
-    skos:topConceptOf dsc:translationPhenomena ;
-    skos:prefLabel "addition"@en ;
-    skos:prefLabel "aggiunta"@it ;
-    skos:definition "The presence in the translation of content for which no direct counterpart is represented in the relevant source passage."@en .
-
-dsc:condensation
-    a skos:Concept ;
-    skos:inScheme dsc:translationPhenomena ;
-    skos:topConceptOf dsc:translationPhenomena ;
-    skos:prefLabel "condensation"@en ;
-    skos:prefLabel "condensazione"@it ;
-    skos:definition "A more compressed rendering of source content in the translation."@en .
-
-dsc:expansion
-    a skos:Concept ;
-    skos:inScheme dsc:translationPhenomena ;
-    skos:topConceptOf dsc:translationPhenomena ;
-    skos:prefLabel "expansion"@en ;
-    skos:prefLabel "espansione"@it ;
-    skos:definition "A more extended rendering of source content in the translation."@en .
-
-dsc:modulation
-    a skos:Concept ;
-    skos:inScheme dsc:translationPhenomena ;
-    skos:topConceptOf dsc:translationPhenomena ;
-    skos:prefLabel "modulation"@en ;
-    skos:prefLabel "modulazione"@it ;
-    skos:definition "A change in semantic perspective or conceptual viewpoint between a source passage and its translation."@en .
-
-dsc:transposition
-    a skos:Concept ;
-    skos:inScheme dsc:translationPhenomena ;
-    skos:topConceptOf dsc:translationPhenomena ;
-    skos:prefLabel "transposition"@en ;
-    skos:prefLabel "trasposizione"@it ;
-    skos:definition "A change in grammatical category or syntactic construction between a source passage and its translation."@en .
-
-dsc:reordering
-    a skos:Concept ;
-    skos:inScheme dsc:translationPhenomena ;
-    skos:topConceptOf dsc:translationPhenomena ;
-    skos:prefLabel "reordering"@en ;
-    skos:prefLabel "riordinamento"@it ;
-    skos:definition "A change in the relative order of corresponding textual material."@en .
-
-
-# -----------------------------------------------------------------------------
-# 6.5 Certainty and validation
-# -----------------------------------------------------------------------------
-
-dsc:certain
-    a skos:Concept ;
-    skos:inScheme dsc:certaintyLevels ;
-    skos:topConceptOf dsc:certaintyLevels ;
-    skos:prefLabel "certain"@en ;
-    skos:prefLabel "certo"@it .
-
-dsc:probable
-    a skos:Concept ;
-    skos:inScheme dsc:certaintyLevels ;
-    skos:topConceptOf dsc:certaintyLevels ;
-    skos:prefLabel "probable"@en ;
-    skos:prefLabel "probabile"@it .
-
-dsc:uncertain
-    a skos:Concept ;
-    skos:inScheme dsc:certaintyLevels ;
-    skos:topConceptOf dsc:certaintyLevels ;
-    skos:prefLabel "uncertain"@en ;
-    skos:prefLabel "incerto"@it .
-
-dsc:accepted
-    a skos:Concept ;
-    skos:inScheme dsc:validationOutcomes ;
-    skos:topConceptOf dsc:validationOutcomes ;
-    skos:prefLabel "accepted"@en ;
-    skos:prefLabel "accettato"@it .
-
-dsc:rejected
-    a skos:Concept ;
-    skos:inScheme dsc:validationOutcomes ;
-    skos:topConceptOf dsc:validationOutcomes ;
-    skos:prefLabel "rejected"@en ;
-    skos:prefLabel "rifiutato"@it .
-
-dsc:revised
-    a skos:Concept ;
-    skos:inScheme dsc:validationOutcomes ;
-    skos:topConceptOf dsc:validationOutcomes ;
-    skos:prefLabel "revised"@en ;
-    skos:prefLabel "revisionato"@it .
-
-dsc:pending
-    a skos:Concept ;
-    skos:inScheme dsc:validationOutcomes ;
-    skos:topConceptOf dsc:validationOutcomes ;
-    skos:prefLabel "pending"@en ;
-    skos:prefLabel "in attesa"@it .
-
-
-# -----------------------------------------------------------------------------
-# 6.6 Additional interpretation criteria
-# -----------------------------------------------------------------------------
-
-dsc:lexicalComparison
-    a skos:Concept , hico:InterpretationCriterion ;
-    skos:inScheme dsc:interpretationCriteria ;
-    skos:prefLabel "lexical comparison"@en ;
-    skos:prefLabel "confronto lessicale"@it .
-
-dsc:syntacticComparison
-    a skos:Concept , hico:InterpretationCriterion ;
-    skos:inScheme dsc:interpretationCriteria ;
-    skos:prefLabel "syntactic comparison"@en ;
-    skos:prefLabel "confronto sintattico"@it .
 
 
 # =============================================================================
@@ -664,19 +548,30 @@ dsc:usesSourceExpression
 
 dsc:usesSourceManifestation
     a owl:ObjectProperty ;
-    rdfs:subPropertyOf prov:used ;
+    rdfs:subPropertyOf prov:used , crm:P16_used_specific_object ;
     rdfs:domain dsc:TranslationAct ;
     rdfs:range lrmoo:F3_Manifestation ;
     rdfs:label "uses source manifestation"@en ;
     skos:definition "Identifies the publication or other manifestation actually used by the translator, when known."@en ;
     dsc:competencyQuestion "CQ4" .
 
+dsc:usesSourceItem
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:used , crm:P16_used_specific_object ;
+    rdfs:domain dsc:TranslationAct ;
+    rdfs:range lrmoo:F5_Item ;
+    rdfs:label "uses source item"@en ;
+    skos:definition "Identifies the specific material item actually used in a translation act, when known."@en ;
+    skos:scopeNote "Use this property when evidence identifies a particular manuscript or copy rather than only a manifestation-level source."@en ;
+    dsc:competencyQuestion "CQ4" .
+
 dsc:translator
     a owl:ObjectProperty ;
-    rdfs:subPropertyOf prov:wasAssociatedWith ;
+    rdfs:subPropertyOf prov:wasAssociatedWith , crm:P14_carried_out_by ;
     rdfs:domain dsc:TranslationAct ;
     rdfs:range prov:Agent ;
     rdfs:label "translator"@en ;
+    skos:definition "Identifies the agent responsible for carrying out a translation act."@en ;
     dsc:competencyQuestion "CQ3" .
 
 
@@ -848,7 +743,7 @@ dsc:translationPhenomenon
     rdfs:range skos:Concept ;
     rdfs:label "translation phenomenon"@en ;
     skos:definition "A local translation phenomenon attributed by a scholarly claim."@en ;
-    skos:scopeNote "Allowed concepts are governed by the dsc:translationPhenomena scheme and checked by SHACL."@en ;
+    skos:scopeNote "Allowed concepts are governed by the dsc:translationPhenomena scheme; application-level conformance rules are outside the scope of this draft."@en ;
     dsc:competencyQuestion "CQ13, CQ14" .
 
 dsc:translationTrait
@@ -944,7 +839,7 @@ dsc:confidence
     rdfs:range xsd:decimal ;
     rdfs:label "confidence"@en ;
     skos:definition "A run-specific confidence value produced during the qualified generation of an alignment."@en ;
-    skos:scopeNote "The permitted numeric interval is a SHACL constraint. This value is distinct from scholarly certainty."@en ;
+    skos:scopeNote "This value is distinct from scholarly certainty. Any application-level numeric constraints are outside the scope of this draft."@en ;
     dsc:competencyQuestion "CQ11" .
 
 dsc:similarityThreshold
