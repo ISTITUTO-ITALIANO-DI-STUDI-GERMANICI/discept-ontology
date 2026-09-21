@@ -48,7 +48,7 @@ The architecture combines complementary representations with different domains o
 | PROV-O                    | Agents, activities, generation, derivation, revision and software             | Core provenance         |
 | HiCO                      | Interpretation acts, interpretation types and criteria                        | Directly reused         |
 | CiTO                      | Evidence and relations of agreement, disagreement or refutation               | Reused with HiCO        |
-| SKOS                      | Translation phenomena, traits, methods, levels and validation outcomes        | Controlled vocabularies |
+| SKOS                      | Translation phenomena, traits, methods, levels and validation outcomes        | Provisional domain vocabularies |
 | IIIF                      | Images, canvases and regions connected to transcription                       | Material layer          |
 | DC Terms and DCAT         | General metadata and dataset publication                                      | Metadata layer          |
 | FaBiO                     | Optional publication-specific typing and bibliographic interoperability       | Extension only          |
@@ -134,6 +134,14 @@ Textual alignment is therefore not treated as an ontological definition of trans
 Local phenomena and profile-level traits are SKOS concepts rather than OWL classes. A quantitative query may derive counts and distributions from local assertions. The scholarly conclusion that a pattern constitutes a translation trait remains an explicit InterpretiveAssertion with its own provenance. OWL must not infer that conclusion automatically from an arbitrary frequency threshold.
 
 Draft 0.3.1 includes the initial vocabularies directly in `discept.ttl`. The first local translation phenomena are explicitation, implicitation, omission, addition, condensation, expansion, modulation, transposition and reordering. The initial alignment-level vocabulary contains token, verse, sentence, paragraph, structural and semantic levels; alignment methods distinguish manual, automatic and semi-automatic workflows; and initial certainty and validation vocabularies provide low/medium/high certainty and accepted/rejected/revised outcomes. The correspondence-types scheme is deliberately left open until pilot datasets establish distinctions that do not duplicate alignment level or translation-phenomenon interpretation.
+
+### 7.1 Status and collective development of the SKOS vocabularies
+
+The SKOS vocabularies in draft 0.3.1 are **provisional working vocabularies and an explicit area for further domain research**. They should not be understood as a closed or stabilised taxonomy of translation phenomena. Their present purpose is to make analytical categories addressable, testable and queryable while keeping them distinct from the OWL class structure.
+
+Their further development is intended to be **collective and domain-driven**. Definitions, scope notes, hierarchical or associative relations, multilingual labels and bibliographic references should be discussed and refined with scholars working in Translation Studies, philology, digital scholarly editing and related fields, and tested against heterogeneous multilingual and historical corpora. Particular attention is required for theoretically loaded terms such as *explicitation*, *implicitation*, *modulation* and *transposition*, whose interpretation may vary across scholarly traditions and analytical contexts.
+
+The vocabulary layer should therefore remain independently extensible and governable. New concepts should be introduced on the basis of documented scholarly need and representative use cases rather than fixed in advance by the ontology. Competing classifications may be retained when they reflect legitimate differences of interpretation; the provenance of their application belongs to the interpretive layer rather than being resolved by the SKOS vocabulary itself.
 
 > Local assertions  
 > └─ quantitative aggregation  
@@ -299,6 +307,6 @@ The next test dataset should contain one source expression, a direct translation
 | [<u>LRMoo version 1.1.1</u>](https://cidoc-crm.org/lrmoo/ModelVersion/version-1.1.1) | [<u>CIDOC CRM</u>](https://www.cidoc-crm.org/) |
 | [<u>W3C Web Annotation Data Model</u>](https://www.w3.org/TR/annotation-model/) | [<u>W3C Web Annotation Vocabulary</u>](https://www.w3.org/TR/annotation-vocab/) |
 | [<u>PROV-O</u>](https://www.w3.org/TR/prov-o/) | [<u>SKOS</u>](https://www.w3.org/TR/skos-reference/) |
-| [<u>Historical Context Ontology</u>](http://purl.org/emmedi/hico) | [<u>FaBiO</u>](https://www.sparontologies.net/ontologies/fabio) |
+| [<u>HiCO — Historical Context Ontology</u>](http://purl.org/emmedi/hico) | [<u>FaBiO</u>](https://www.sparontologies.net/ontologies/fabio) |
 | [<u>OntoLex-Lemon</u>](https://www.w3.org/2016/05/ontolex/) | [<u>VarTrans module</u>](https://www.w3.org/community/ontolex/wiki/Final_Model_Specification) |
 | [<u>Biflow ontology</u>](https://catalogobiflow.vedph.it/ontospy/) | [<u>Biflow RDF namespace</u>](https://biflow.humanitiesdata.dev/rdf/biflow#) |
