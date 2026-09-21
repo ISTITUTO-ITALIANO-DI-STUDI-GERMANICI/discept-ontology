@@ -58,6 +58,10 @@ OWL axioms therefore describe meaning and support inference; they are not used a
 
 FaBiO is not used as an alternative bibliographic backbone. It remains aligned with the FRBR model, whereas DiScEPT adopts the current LRMoo model. FaBiO classes may be added as supplementary types when a concrete interoperability use case requires them. Any correspondence with LRMoo must be documented in a separate mapping module. The core ontology must not declare broad equivalence between the two class systems without term-by-term verification.
 
+DiScEPT does not adopt a single domain ontology for translation. Instead, it combines established semantic models according to the different dimensions involved in representing translated texts. LRMoo and CIDOC CRM provide the bibliographic and event-based backbone; Web Annotation supports addressable textual relations and anchoring; PROV-O and HiCO represent provenance and scholarly interpretation; and SKOS organises controlled vocabularies for translation phenomena, traits, methods and validation. This modular approach allows the model to distinguish the translation relation between expressions, the historical activity that produced a translation, correspondences between analytical textual units, and scholarly claims about those correspondences rather than collapsing them into a single semantic relation.
+
+OntoLex-Lemon and its VarTrans module are relevant to lexical and sense-level variation and translation relations, but they are not part of the current DiScEPT core. The present model focuses on textual expressions, analytical units, alignments and provenance-bearing scholarly interpretation. OntoLex-Lemon/VarTrans may therefore be introduced as a complementary lexical layer when word-level alignment or lexical-semantic analysis requires explicit representation of lexical entries, senses or concepts. Such an extension should reuse the existing DiScEPT identifiers for textual units and alignments rather than replace the current alignment model.
+
 ## 4 Bibliographic model and explicit translation
 
 LRMoo provides the structural backbone. A dsc:Work is realised in one or more dsc:Expression entities. A dsc:Translation is an expression for which the direct source expression is asserted explicitly through dsc:translates. The property is specialised from LRMoo R76 is derivative of and CIDOC CRM P73i is translation of.
@@ -116,6 +120,8 @@ Omission and addition require a separate pattern because an absence is not a tex
 ## 7 Translation phenomena, traits and profiles
 
 DiScEPT distinguishes the translation relation from the scholarly description of what a translation does. The semantic model makes three analytical levels explicit.
+
+Textual alignment is therefore not treated as an ontological definition of translation. An alignment represents a correspondence among analytical textual units, while the historically directed translation relation between expressions and the scholarly interpretation of particular correspondences remain distinct semantic layers. This separation allows the same alignment to support different, potentially competing interpretations without altering the underlying textual correspondence.
 
 | **Level**                    | **Example**                                                       | **Representation**                                                  |
 |------------------------------|-------------------------------------------------------------------|---------------------------------------------------------------------|
@@ -210,7 +216,7 @@ The PID policy must decide:
 
 ## 12 Ontology and SHACL validation
 
-DiScEPT has one semantic model expressed through coordinated artefacts. discept_ontology.ttl defines the meaning of classes and properties. discept_shapes.ttl will define the conditions that a dataset must satisfy. The second file is not another ontology.
+DiScEPT has one semantic model expressed through coordinated artefacts. In the current repository, `discept.ttl` defines the meaning of classes and properties and also contains the initial governed SKOS vocabularies. A future `discept_shapes.ttl` will define the conditions that a dataset must satisfy once the model has been tested on representative data. The shapes graph will be a conformance layer, not a second ontology.
 
 | **Question**                         | **OWL and RDFS**                                                  | **SHACL**                                         |
 |--------------------------------------|-------------------------------------------------------------------|---------------------------------------------------|
